@@ -1,11 +1,12 @@
 import 'package:animate_do/animate_do.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_sizer/flutter_sizer.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:iconly/iconly.dart';
 import 'package:study_buddy/service/auth_service.dart';
 import 'package:study_buddy/views/mainscreen.dart';
+import 'package:study_buddy/views/onBoarding.dart';
 import 'package:study_buddy/views/register.dart';
 import '../../widgets/auth_widgets.dart';
 
@@ -17,10 +18,8 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final _tName = TextEditingController();
   final _tEmail = TextEditingController();
   final _tPassword = TextEditingController();
-  var focusNodeName = FocusNode();
   var focusNodeEmail = FocusNode();
   var focusNodePassword = FocusNode();
   bool isFocusedEmail = false;
@@ -28,7 +27,6 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     focusNodeEmail.addListener(() {
       setState(() {
         isFocusedEmail = focusNodeEmail.hasFocus;
@@ -153,7 +151,7 @@ class _LoginPageState extends State<LoginPage> {
                         Expanded(
                           child: ElevatedButton.icon(
                             onPressed: () {
-                              //OnPressed Logic
+                              // OnPressed Logic
                             },
                             icon: Image.asset('assets/images/google.png'),
                             label: const Text("Google İle Giriş Yap"),
@@ -196,7 +194,7 @@ class _LoginPageState extends State<LoginPage> {
                             },
                             child: const Text('Kayıt ol',
                                 style: TextStyle(
-                                    color: Color(0xff936ffc),
+                                    color: Color.fromARGB(255, 147, 111, 252),
                                     fontSize: 15,
                                     fontWeight: FontWeight.w600)))
                       ],
