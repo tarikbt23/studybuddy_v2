@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:study_buddy/views/dersHedeflerim.dart';
 import 'package:study_buddy/views/kalangun.dart';
 import 'package:study_buddy/views/konulariTara.dart';
 import 'package:study_buddy/views/kronometre.dart';
@@ -42,10 +43,6 @@ class _StartStudyState extends State<StartStudy> {
                   ),
                   ElevatedButton(
                     onPressed: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => Kronometrewidget()));
                     },
                     child: Text(
                       'Konu Çalış',
@@ -117,7 +114,12 @@ class _StartStudyState extends State<StartStudy> {
             Expanded(
               child: Center(
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => DersHedeflerim()));
+                  },
                   child: Text(
                     'Günlük Ders Hedeflerim',
                     style: TextStyle(color: Colors.white),

@@ -115,7 +115,7 @@ Future<void> signIn(BuildContext context,
     }
   }
 
-    // Kullanıcı alanını getirme fonksiyonu
+  // Kullanıcı alanını getirme fonksiyonu
   Future<String?> getUserField() async {
     User? user = firebaseAuth.currentUser;
     if (user != null) {
@@ -126,6 +126,92 @@ Future<void> signIn(BuildContext context,
       }
     }
     return null;
+  }
+
+  // Kullanıcı ders süresini kaydetme fonksiyonu
+  Future<void> saveStudyTime(String ders, Duration duration) async {
+    User? user = firebaseAuth.currentUser;
+    if (user != null) {
+      String formattedDuration = "${duration.inHours}:${duration.inMinutes.remainder(60)}:${duration.inSeconds.remainder(60)}";
+
+      // Mevcut süreyi al
+      DocumentSnapshot docSnapshot = await userCollection.doc(user.uid).collection("study_times").doc(ders).get();
+      String? existingDurationString = docSnapshot.exists ? docSnapshot.get('duration') : null;
+
+      // Mevcut süreyi yeni süre ile topla
+      Duration totalDuration = duration;
+      if (existingDurationString != null) {
+        totalDuration += _parseDuration(existingDurationString);
+      }
+
+      await userCollection
+          .doc(user.uid)
+          .collection("study_times")
+          .doc(ders)
+          .set({
+        'duration': "${totalDuration.inHours}:${totalDuration.inMinutes.remainder(60)}:${totalDuration.inSeconds.remainder(60)}",
+        'timestamp': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+    }
+  }
+
+    // Kullanıcı hedef verilerini kaydetme fonksiyonu
+  Future<void> saveUserTarget(String ders, int hedef) async {
+    User? user = firebaseAuth.currentUser;
+    if (user != null) {
+      await userCollection
+          .doc(user.uid)
+          .collection("targets")
+          .doc(ders)
+          .set({
+        'hedef': hedef,
+        'timestamp': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+    }
+  }
+
+  // Kullanıcı hedef verilerini alma fonksiyonu
+  Future<Map<String, int>> getUserTargets() async {
+    User? user = firebaseAuth.currentUser;
+    if (user != null) {
+      QuerySnapshot targetsSnapshot = await userCollection
+          .doc(user.uid)
+          .collection("targets")
+          .get();
+      Map<String, int> targets = {};
+      for (var doc in targetsSnapshot.docs) {
+        targets[doc.id] = doc['hedef'];
+      }
+      return targets;
+    }
+    return {};
+  }
+
+  // Günlük hedef verilerini sıfırlama fonksiyonu
+  Future<void> resetUserTargets() async {
+    User? user = firebaseAuth.currentUser;
+    if (user != null) {
+      QuerySnapshot targetsSnapshot = await userCollection
+          .doc(user.uid)
+          .collection("targets")
+          .get();
+      for (var doc in targetsSnapshot.docs) {
+        await userCollection
+            .doc(user.uid)
+            .collection("targets")
+            .doc(doc.id)
+            .update({'hedef': 0});
+      }
+    }
+  }
+
+  Duration _parseDuration(String duration) {
+    List<String> parts = duration.split(':');
+    return Duration(
+      hours: int.parse(parts[0]),
+      minutes: int.parse(parts[1]),
+      seconds: int.parse(parts[2]),
+    );
   }
 
   Future<User?> signInWithGoogle() async {

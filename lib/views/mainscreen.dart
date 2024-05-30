@@ -1,7 +1,6 @@
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+import 'package:study_buddy/service/motivation_service.dart';
 import 'package:study_buddy/views/startstudy.dart';
 
 class MainScreen extends StatefulWidget {
@@ -12,6 +11,22 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
+  String _motivationSoz = '';
+  final MotivationService _motivasyonServisi = MotivationService();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadMotivationSoz();
+  }
+
+  Future<void> _loadMotivationSoz() async {
+    await _motivasyonServisi.loadMotivasyonSozleri();
+    setState(() {
+      _motivationSoz = _motivasyonServisi.getRandomSoz();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -50,9 +65,7 @@ class _MainScreenState extends State<MainScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(
-                    height:
-                        60), // Buton ve TranslatedCircle'lar arasındaki boşluk artırıldı
+                const SizedBox(height: 60),
                 const SafeArea(
                   child: Expanded(
                     child: Row(
@@ -65,6 +78,34 @@ class _MainScreenState extends State<MainScreen> {
                         TranslatedCircle(
                             'En yüksek net\n90', Color(0xffcad7ff), -20),
                       ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 150),
+                Center(
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xfff1f0f5),
+                      borderRadius: BorderRadius.circular(40),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.25),
+                          spreadRadius: 3,
+                          blurRadius: 5,
+                          offset: const Offset(0, 3), // gölge efekti
+                        ),
+                      ],
+                    ),
+                    child: Text(
+                      _motivationSoz,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        fontStyle: FontStyle.italic,
+                        color: Color(0xff936ffc),
+                      ),
                     ),
                   ),
                 ),

@@ -4,10 +4,8 @@ import 'package:flutter_sizer/flutter_sizer.dart';
 import 'package:provider/provider.dart';
 import 'package:study_buddy/locator.dart';
 import 'package:study_buddy/service/provider/auth_provider.dart';
-import 'package:study_buddy/service/auth_service.dart';
-import 'package:study_buddy/views/mainscreen.dart';
 import 'package:study_buddy/views/welcomepage.dart';
-import 'package:study_buddy/views/onBoarding.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -37,7 +35,7 @@ class MyApp extends StatelessWidget {
       builder: (context, orientation, deviceType) => MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: ThemeData(fontFamily: 'Satoshi'),
-        home: WelcomePage(), // Başlangıç sayfası WelcomePage olarak ayarlandı
+        home: const WelcomePage(), // Başlangıç sayfası WelcomePage olarak ayarlandı
       ),
     );
   }
