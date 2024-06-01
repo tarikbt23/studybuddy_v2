@@ -1,10 +1,6 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import 'package:study_buddy/loading_indicator.dart';
 import 'package:study_buddy/service/auth_service.dart';
-import 'package:study_buddy/constants.dart';
-import 'package:study_buddy/views/kronometre.dart';
 
 class KonulariTara extends StatefulWidget {
   @override
@@ -13,43 +9,65 @@ class KonulariTara extends StatefulWidget {
 
 class _KonulariTaraState extends State<KonulariTara> {
   final AuthService authService = AuthService();
-  List<String> dersler = [];
-  String? kullaniciAlani;
-  Map<String, String> studyTimes = {};
+  Map<String, int> _hedefler = {};
+  Map<String, int> _gunlukSoruSayilari = {
+    "Türkçe": 0,
+    "Matematik": 0,
+    "Fen Bilimleri": 0,
+    "Sosyal Bilimler": 0,
+    "AYT Matematik": 0,
+    "AYT Fizik": 0,
+    "AYT Kimya": 0,
+    "AYT Biyoloji": 0,
+    "AYT Edebiyat": 0,
+    "AYT Tarih": 0,
+    "AYT Coğrafya": 0,
+    "AYT Felsefe": 0,
+  };
+  late Future<void> _initialData;
 
   @override
   void initState() {
     super.initState();
-    fetchDersler();
+    _initialData = _loadTargetsAndDailyCounts();
   }
 
-  Future<void> fetchDersler() async {
-    String? alani = await authService.getUserField();
+  Future<void> _loadTargetsAndDailyCounts() async {
+    Map<String, int> targets = await authService.getUserTargets();
+    Map<String, int> dailyCounts = await authService.getDailyQuestionCounts();
+
     setState(() {
-      kullaniciAlani = alani;
-      if (alani != null && aytDersleri.containsKey(alani)) {
-        dersler = tytDersleri + aytDersleri[alani]!;
-      } else {
-        dersler = tytDersleri;
+      _hedefler = targets;
+      dailyCounts.forEach((key, value) {
+        _gunlukSoruSayilari[key] = value;
+      });
+    });
+  }
+
+  void _increment(String ders) async {
+    setState(() {
+      _gunlukSoruSayilari[ders] = (_gunlukSoruSayilari[ders] ?? 0) + 1;
+    });
+    await authService.saveDailyQuestionCount(ders, _gunlukSoruSayilari[ders]!);
+  }
+
+  void _decrement(String ders) async {
+    setState(() {
+      _gunlukSoruSayilari[ders] = (_gunlukSoruSayilari[ders] ?? 0) - 1;
+      if (_gunlukSoruSayilari[ders]! < 0) {
+        _gunlukSoruSayilari[ders] = 0; // Negatif değere izin vermeyelim.
       }
     });
-    fetchStudyTimes();
+    await authService.saveDailyQuestionCount(ders, _gunlukSoruSayilari[ders]!);
   }
 
-  Future<void> fetchStudyTimes() async {
-    User? user = authService.firebaseAuth.currentUser;
-    if (user != null) {
-      QuerySnapshot studyTimesSnapshot = await authService.userCollection
-          .doc(user.uid)
-          .collection("study_times")
-          .get();
-      Map<String, String> fetchedStudyTimes = {};
-      for (var doc in studyTimesSnapshot.docs) {
-        fetchedStudyTimes[doc.id] = doc['duration'];
-      }
-      setState(() {
-        studyTimes = fetchedStudyTimes;
-      });
+  Color _getCardColor(String ders) {
+    int hedef = _hedefler[ders] ?? 0;
+    int gunluk = _gunlukSoruSayilari[ders] ?? 0;
+    if (gunluk < hedef) {
+      return Colors.red.shade300;
+    } else {
+      return Colors.green.shade300;
     }
   }
 
@@ -60,24 +78,42 @@ class _KonulariTaraState extends State<KonulariTara> {
         title: Text("Konuları Tara"),
         centerTitle: true,
       ),
-      body: ListView.builder(
-        padding: EdgeInsets.all(16.0),
-        itemCount: dersler.length,
-        itemBuilder: (context, index) {
-          return Card(
-            child: ListTile(
-              title: Text(dersler[index]),
-              subtitle: Text(studyTimes[dersler[index]] ?? "Henüz çalışılmadı"),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => Kronometre(ders: dersler[index]),
+      body: FutureBuilder<void>(
+        future: _initialData,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return LoadingIndicator(); 
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Bir hata oluştu: ${snapshot.error}'));
+          } else {
+            return ListView.builder(
+              padding: EdgeInsets.all(16.0),
+              itemCount: _hedefler.keys.length,
+              itemBuilder: (context, index) {
+                String ders = _hedefler.keys.elementAt(index);
+                return Card(
+                  color: _getCardColor(ders),
+                  child: ListTile(
+                    title: Text(ders),
+                    subtitle: Text("Günlük Çözülen: ${_gunlukSoruSayilari[ders] ?? 0}"),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.remove),
+                          onPressed: () => _decrement(ders),
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.add),
+                          onPressed: () => _increment(ders),
+                        ),
+                      ],
+                    ),
                   ),
-                ).then((_) => fetchStudyTimes()); // Süre kaydedildikten sonra süreleri güncelle
+                );
               },
-            ),
-          );
+            );
+          }
         },
       ),
     );

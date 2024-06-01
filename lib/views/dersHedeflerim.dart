@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:study_buddy/loading_indicator.dart';
 import 'package:study_buddy/service/auth_service.dart';
 
 class DersHedeflerim extends StatefulWidget {
@@ -22,11 +23,12 @@ class _DersHedeflerimState extends State<DersHedeflerim> {
     "AYT Coğrafya": 0,
     "AYT Felsefe": 0,
   };
+  late Future<void> _initialData;
 
   @override
   void initState() {
     super.initState();
-    _loadTargets();
+    _initialData = _loadTargets();
   }
 
   Future<void> _loadTargets() async {
@@ -47,7 +49,7 @@ class _DersHedeflerimState extends State<DersHedeflerim> {
     setState(() {
       _hedefler[ders] = (_hedefler[ders] ?? 0) - 5;
       if (_hedefler[ders]! < 0) {
-        _hedefler[ders] = 0; // Negatif değere izin vermeyelim.
+        _hedefler[ders] = 0;
       }
     });
     await authService.saveUserTarget(ders, _hedefler[ders]!);
@@ -60,30 +62,41 @@ class _DersHedeflerimState extends State<DersHedeflerim> {
         title: Text("Ders Hedeflerim"),
         centerTitle: true,
       ),
-      body: ListView.builder(
-        padding: EdgeInsets.all(16.0),
-        itemCount: _hedefler.keys.length,
-        itemBuilder: (context, index) {
-          String ders = _hedefler.keys.elementAt(index);
-          return Card(
-            child: ListTile(
-              title: Text(ders),
-              subtitle: Text("Hedef: ${_hedefler[ders]}"),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    icon: Icon(Icons.remove),
-                    onPressed: () => _decrement(ders),
+      body: FutureBuilder<void>(
+        future: _initialData,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return LoadingIndicator(); 
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Bir hata oluştu: ${snapshot.error}'));
+          } else {
+            return ListView.builder(
+              padding: EdgeInsets.all(16.0),
+              itemCount: _hedefler.keys.length,
+              itemBuilder: (context, index) {
+                String ders = _hedefler.keys.elementAt(index);
+                return Card(
+                  child: ListTile(
+                    title: Text(ders),
+                    subtitle: Text("Hedef: ${_hedefler[ders]}"),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.remove),
+                          onPressed: () => _decrement(ders),
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.add),
+                          onPressed: () => _increment(ders),
+                        ),
+                      ],
+                    ),
                   ),
-                  IconButton(
-                    icon: Icon(Icons.add),
-                    onPressed: () => _increment(ders),
-                  ),
-                ],
-              ),
-            ),
-          );
+                );
+              },
+            );
+          }
         },
       ),
     );

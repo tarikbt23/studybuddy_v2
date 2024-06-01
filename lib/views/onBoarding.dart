@@ -12,7 +12,7 @@ class OnboardingScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Hoş Geldin!"),
+        title: const Text("Hoş Geldin!"),
         centerTitle: true,
       ),
       body: Padding(
@@ -20,18 +20,18 @@ class OnboardingScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
-            SizedBox(height: 30), // Üstten boşluk ekledik
-            Text(
+            const SizedBox(height: 30), // Üstten boşluk ekledik
+            const Text(
               "Sınava Hangi Alandan Hazırlanıyorsun ?",
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 40), 
-            _buildOptionButton(context, "Sayısal", Color(0xffc8e3ff)),
-            SizedBox(height: 20),
-            _buildOptionButton(context, "Sözel", Color(0xffd7caff)),
-            SizedBox(height: 20),
-            _buildOptionButton(context, "Eşit Ağırlık", Color(0xffcad7ff)),
+            const SizedBox(height: 40), 
+            _buildOptionButton(context, "Sayısal", const Color(0xffc8e3ff)),
+            const SizedBox(height: 20),
+            _buildOptionButton(context, "Sözel", const Color(0xffd7caff)),
+            const SizedBox(height: 20),
+            _buildOptionButton(context, "Eşit Ağırlık", const Color(0xffcad7ff)),
           ],
         ),
       ),
@@ -44,13 +44,13 @@ class OnboardingScreen extends StatelessWidget {
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor: color,
-          padding: EdgeInsets.symmetric(vertical: 15), // Butonların yüksekliği aynı
+          padding: const EdgeInsets.symmetric(vertical: 15), // Butonların yüksekliği aynı
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
         onPressed: () => selectField(context, title),
         child: Text(
           title,
-          style: TextStyle(fontSize: 18, color: Colors.black),
+          style: const TextStyle(fontSize: 18, color: Colors.black),
         ),
       ),
     );

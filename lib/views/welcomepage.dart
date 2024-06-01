@@ -87,7 +87,7 @@ class _WelcomePageState extends State<WelcomePage> {
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) => LoginPage()));
+                                      builder: (context) => const LoginPage()));
                             },
                             style: ElevatedButton.styleFrom(
                                 elevation: 0,

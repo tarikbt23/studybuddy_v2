@@ -1,12 +1,8 @@
 import 'package:animate_do/animate_do.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sizer/flutter_sizer.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:iconly/iconly.dart';
 import 'package:study_buddy/service/auth_service.dart';
-import 'package:study_buddy/views/mainscreen.dart';
-import 'package:study_buddy/views/onBoarding.dart';
 import 'package:study_buddy/views/register.dart';
 import '../../widgets/auth_widgets.dart';
 
@@ -190,7 +186,7 @@ class _LoginPageState extends State<LoginPage> {
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) => RegisterPage()));
+                                      builder: (context) => const RegisterPage()));
                             },
                             child: const Text('Kayıt ol',
                                 style: TextStyle(

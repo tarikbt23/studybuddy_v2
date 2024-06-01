@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:study_buddy/views/denemeGeriBildiri.dart';
 import 'package:study_buddy/views/dersHedeflerim.dart';
 import 'package:study_buddy/views/kalangun.dart';
+import 'package:study_buddy/views/konuCalis.dart';
 import 'package:study_buddy/views/konulariTara.dart';
 import 'package:study_buddy/views/kronometre.dart';
 
@@ -43,6 +45,8 @@ class _StartStudyState extends State<StartStudy> {
                   ),
                   ElevatedButton(
                     onPressed: () {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) => KonuCalis()));
                     },
                     child: Text(
                       'Konu Çalış',
@@ -55,7 +59,12 @@ class _StartStudyState extends State<StartStudy> {
                     ),
                   ),
                   ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => DenemeGeriBildirim()));
+                    },
                     child: Text(
                       'Deneme Geri Bildirimleri',
                       style: TextStyle(color: Colors.grey[800], fontSize: 20),
@@ -116,9 +125,9 @@ class _StartStudyState extends State<StartStudy> {
                 child: ElevatedButton(
                   onPressed: () {
                     Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => DersHedeflerim()));
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => DersHedeflerim()));
                   },
                   child: Text(
                     'Günlük Ders Hedeflerim',

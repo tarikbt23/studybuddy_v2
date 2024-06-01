@@ -5,6 +5,6 @@ import 'package:study_buddy/service/provider/auth_provider.dart';
 final locator = GetIt.instance;
 
 void setupLocator() {
-  locator.registerSingleton<AuthProvider>(AuthProvider());
+  locator.registerSingleton<SBAuthProvider>(SBAuthProvider());
   locator.registerSingleton<AuthService>(AuthService());
 }

@@ -6,6 +6,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:study_buddy/views/mainscreen.dart';
 import 'package:study_buddy/views/onBoarding.dart';
+import 'package:study_buddy/views/welcomepage.dart';
 
 class AuthService {
   final userCollection = FirebaseFirestore.instance.collection("users");
@@ -92,6 +93,14 @@ Future<void> signIn(BuildContext context,
       "hasCompletedOnboarding": false,
       "password": password
     });
+  }
+
+    Future<void> signOut(BuildContext context) async {
+    await firebaseAuth.signOut();
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => WelcomePage()),
+    );
   }
 
   Future<bool> checkIfUserCompletedOnboarding() async {
@@ -214,6 +223,10 @@ Future<void> signIn(BuildContext context,
     );
   }
 
+Future<User?> getCurrentUser() async {
+  return firebaseAuth.currentUser;
+}
+
   Future<User?> signInWithGoogle() async {
     final GoogleSignInAccount? gUser = await GoogleSignIn().signIn();
     if (gUser == null) return null;
@@ -228,4 +241,59 @@ Future<void> signIn(BuildContext context,
     log(userCredential.user!.email.toString());
     return userCredential.user;
   }
+
+Future<void> saveDailyQuestionCount(String ders, int count) async {
+  User? user = firebaseAuth.currentUser;
+  if (user != null) {
+    await userCollection
+        .doc(user.uid)
+        .collection("daily_counts")
+        .doc(ders)
+        .set({
+      'count': count,
+      'timestamp': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
+  }
+}
+
+// Günlük soru sayılarını alma fonksiyonu
+Future<Map<String, int>> getDailyQuestionCounts() async {
+  User? user = firebaseAuth.currentUser;
+  if (user != null) {
+    QuerySnapshot countsSnapshot = await userCollection
+        .doc(user.uid)
+        .collection("daily_counts")
+        .get();
+    Map<String, int> counts = {};
+    for (var doc in countsSnapshot.docs) {
+      counts[doc.id] = doc['count'];
+    }
+    return counts;
+  }
+  return {};
+}
+  Future<void> saveDeneme(String type, Map<String, dynamic> deneme) async {
+    User? user = firebaseAuth.currentUser;
+    if (user != null) {
+      await userCollection
+          .doc(user.uid)
+          .collection(type)
+          .add(deneme);
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getDenemeler(String type) async {
+    User? user = firebaseAuth.currentUser;
+    if (user != null) {
+      QuerySnapshot snapshot = await userCollection
+          .doc(user.uid)
+          .collection(type)
+          .get();
+      return snapshot.docs.map((doc) {
+        return {'id': doc.id, ...doc.data() as Map<String, dynamic>};
+      }).toList();
+    }
+    return [];
+  }
+
 }

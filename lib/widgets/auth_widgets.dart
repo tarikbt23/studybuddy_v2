@@ -23,7 +23,7 @@ Widget actionButton(String title, {Function()? onTap}) {
       duration: const Duration(milliseconds: 800),
       child: Text(
         title,
-        style: TextStyle(color: Colors.white),
+        style: const TextStyle(color: Colors.white),
       ),
     ),
   );

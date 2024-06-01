@@ -1,6 +1,7 @@
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:study_buddy/service/motivation_service.dart';
+import 'package:study_buddy/views/settings.dart';
 import 'package:study_buddy/views/startstudy.dart';
 
 class MainScreen extends StatefulWidget {
@@ -50,7 +51,7 @@ class _MainScreenState extends State<MainScreen> {
                 ElevatedButton(
                   onPressed: () {
                     Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => StartStudy()));
+                        MaterialPageRoute(builder: (context) => const StartStudy()));
                   },
                   style: ElevatedButton.styleFrom(
                       shape: RoundedRectangleBorder(
@@ -100,7 +101,7 @@ class _MainScreenState extends State<MainScreen> {
                     child: Text(
                       _motivationSoz,
                       textAlign: TextAlign.center,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                         fontStyle: FontStyle.italic,
@@ -152,7 +153,8 @@ class _MainScreenState extends State<MainScreen> {
                 // Üçüncü öğeye tıklandığında yapılacak işlem
                 break;
               case 3:
-                // Dördüncü öğeye tıklandığında yapılacak işlem
+                Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => const SettingsScreen()));
                 break;
             }
           },
