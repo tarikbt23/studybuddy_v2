@@ -24,8 +24,13 @@ class AuthService {
         await _registerUser(userCredential.user!.uid,
             name: name, email: email, password: password);
         Fluttertoast.showToast(msg: "Kayıt başarılı");
-        navigator.push(MaterialPageRoute(
-          builder: (context) => const MainScreen(),
+        navigator.pushReplacement(MaterialPageRoute(
+          builder: (context) => OnboardingScreen(onCompleted: () {
+            completeOnboarding();
+            navigator.pushReplacement(MaterialPageRoute(
+              builder: (context) => const MainScreen(),
+            ));
+          }),
         ));
       }
     } on FirebaseAuthException catch (e) {
@@ -33,36 +38,34 @@ class AuthService {
     }
   }
 
-Future<void> signIn(BuildContext context,
-    {required String email, required String password}) async {
-  final navigator = Navigator.of(context);
-  try {
-    final UserCredential userCredential = await firebaseAuth.signInWithEmailAndPassword(email: email, password: password);
-    if (userCredential.user != null) {
-      // Kullanıcının onboarding durumunu kontrol et
-      bool hasCompletedOnboarding = await _hasCompletedOnboarding(userCredential.user!.uid);
-      if (!hasCompletedOnboarding) {
-        // Kullanıcı onboarding'i tamamlamamışsa, OnboardingScreen'e yönlendir.
-        navigator.pushReplacement(MaterialPageRoute(
-          builder: (context) => OnboardingScreen(onCompleted: () {
-            completeOnboarding(); // Onboarding'i tamamla ve ana ekrana git.
-            navigator.pushReplacement(MaterialPageRoute(
-              builder: (context) => const MainScreen(),
-            ));
-          }),
-        ));
-      } else {
-        // Kullanıcı onboarding'i tamamlamışsa, doğrudan MainScreen'e yönlendir.
-        navigator.pushReplacement(MaterialPageRoute(
-          builder: (context) => const MainScreen(),
-        ));
+  Future<void> signIn(BuildContext context,
+      {required String email, required String password}) async {
+    final navigator = Navigator.of(context);
+    try {
+      final UserCredential userCredential = await firebaseAuth
+          .signInWithEmailAndPassword(email: email, password: password);
+      if (userCredential.user != null) {
+        bool hasCompletedOnboarding =
+            await _hasCompletedOnboarding(userCredential.user!.uid);
+        if (!hasCompletedOnboarding) {
+          navigator.pushReplacement(MaterialPageRoute(
+            builder: (context) => OnboardingScreen(onCompleted: () {
+              completeOnboarding();
+              navigator.pushReplacement(MaterialPageRoute(
+                builder: (context) => const MainScreen(),
+              ));
+            }),
+          ));
+        } else {
+          navigator.pushReplacement(MaterialPageRoute(
+            builder: (context) => const MainScreen(),
+          ));
+        }
       }
+    } on FirebaseAuthException catch (e) {
+      Fluttertoast.showToast(msg: e.message!, toastLength: Toast.LENGTH_LONG);
     }
-  } on FirebaseAuthException catch (e) {
-    Fluttertoast.showToast(msg: e.message!, toastLength: Toast.LENGTH_LONG);
   }
-}
-
 
   Future<bool> _hasCompletedOnboarding(String uid) async {
     DocumentSnapshot userDoc = await userCollection.doc(uid).get();
@@ -95,7 +98,20 @@ Future<void> signIn(BuildContext context,
     });
   }
 
-    Future<void> signOut(BuildContext context) async {
+  Future<String?> getUserName() async {
+  User? user = firebaseAuth.currentUser;
+  if (user != null) {
+    DocumentSnapshot userDoc = await userCollection.doc(user.uid).get();
+    if (userDoc.exists && userDoc.data() != null) {
+      Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
+      return userData['name'] as String?;
+    }
+  }
+  return null;
+}
+
+
+  Future<void> signOut(BuildContext context) async {
     await firebaseAuth.signOut();
     Navigator.pushReplacement(
       context,
@@ -106,7 +122,8 @@ Future<void> signIn(BuildContext context,
   Future<bool> checkIfUserCompletedOnboarding() async {
     User? currentUser = firebaseAuth.currentUser;
     if (currentUser != null) {
-      DocumentSnapshot userDoc = await userCollection.doc(currentUser.uid).get();
+      DocumentSnapshot userDoc =
+          await userCollection.doc(currentUser.uid).get();
       if (userDoc.exists && userDoc.data() != null) {
         Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
         return userData['hasCompletedOnboarding'] ?? false;
@@ -115,12 +132,10 @@ Future<void> signIn(BuildContext context,
     return false;
   }
 
-    Future<void> updateUserField(String field) async {
+  Future<void> updateUserField(String field) async {
     User? user = firebaseAuth.currentUser;
     if (user != null) {
-      await userCollection.doc(user.uid).update({
-        'alani': field
-      });
+      await userCollection.doc(user.uid).update({'alani': field});
     }
   }
 
@@ -141,11 +156,17 @@ Future<void> signIn(BuildContext context,
   Future<void> saveStudyTime(String ders, Duration duration) async {
     User? user = firebaseAuth.currentUser;
     if (user != null) {
-      String formattedDuration = "${duration.inHours}:${duration.inMinutes.remainder(60)}:${duration.inSeconds.remainder(60)}";
+      String formattedDuration =
+          "${duration.inHours}:${duration.inMinutes.remainder(60)}:${duration.inSeconds.remainder(60)}";
 
       // Mevcut süreyi al
-      DocumentSnapshot docSnapshot = await userCollection.doc(user.uid).collection("study_times").doc(ders).get();
-      String? existingDurationString = docSnapshot.exists ? docSnapshot.get('duration') : null;
+      DocumentSnapshot docSnapshot = await userCollection
+          .doc(user.uid)
+          .collection("study_times")
+          .doc(ders)
+          .get();
+      String? existingDurationString =
+          docSnapshot.exists ? docSnapshot.get('duration') : null;
 
       // Mevcut süreyi yeni süre ile topla
       Duration totalDuration = duration;
@@ -158,21 +179,18 @@ Future<void> signIn(BuildContext context,
           .collection("study_times")
           .doc(ders)
           .set({
-        'duration': "${totalDuration.inHours}:${totalDuration.inMinutes.remainder(60)}:${totalDuration.inSeconds.remainder(60)}",
+        'duration':
+            "${totalDuration.inHours}:${totalDuration.inMinutes.remainder(60)}:${totalDuration.inSeconds.remainder(60)}",
         'timestamp': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
     }
   }
 
-    // Kullanıcı hedef verilerini kaydetme fonksiyonu
+  // Kullanıcı hedef verilerini kaydetme fonksiyonu
   Future<void> saveUserTarget(String ders, int hedef) async {
     User? user = firebaseAuth.currentUser;
     if (user != null) {
-      await userCollection
-          .doc(user.uid)
-          .collection("targets")
-          .doc(ders)
-          .set({
+      await userCollection.doc(user.uid).collection("targets").doc(ders).set({
         'hedef': hedef,
         'timestamp': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
@@ -183,10 +201,8 @@ Future<void> signIn(BuildContext context,
   Future<Map<String, int>> getUserTargets() async {
     User? user = firebaseAuth.currentUser;
     if (user != null) {
-      QuerySnapshot targetsSnapshot = await userCollection
-          .doc(user.uid)
-          .collection("targets")
-          .get();
+      QuerySnapshot targetsSnapshot =
+          await userCollection.doc(user.uid).collection("targets").get();
       Map<String, int> targets = {};
       for (var doc in targetsSnapshot.docs) {
         targets[doc.id] = doc['hedef'];
@@ -200,10 +216,8 @@ Future<void> signIn(BuildContext context,
   Future<void> resetUserTargets() async {
     User? user = firebaseAuth.currentUser;
     if (user != null) {
-      QuerySnapshot targetsSnapshot = await userCollection
-          .doc(user.uid)
-          .collection("targets")
-          .get();
+      QuerySnapshot targetsSnapshot =
+          await userCollection.doc(user.uid).collection("targets").get();
       for (var doc in targetsSnapshot.docs) {
         await userCollection
             .doc(user.uid)
@@ -223,9 +237,9 @@ Future<void> signIn(BuildContext context,
     );
   }
 
-Future<User?> getCurrentUser() async {
-  return firebaseAuth.currentUser;
-}
+  Future<User?> getCurrentUser() async {
+    return firebaseAuth.currentUser;
+  }
 
   Future<User?> signInWithGoogle() async {
     final GoogleSignInAccount? gUser = await GoogleSignIn().signIn();
@@ -242,58 +256,51 @@ Future<User?> getCurrentUser() async {
     return userCredential.user;
   }
 
-Future<void> saveDailyQuestionCount(String ders, int count) async {
-  User? user = firebaseAuth.currentUser;
-  if (user != null) {
-    await userCollection
-        .doc(user.uid)
-        .collection("daily_counts")
-        .doc(ders)
-        .set({
-      'count': count,
-      'timestamp': FieldValue.serverTimestamp(),
-    }, SetOptions(merge: true));
-  }
-}
-
-// Günlük soru sayılarını alma fonksiyonu
-Future<Map<String, int>> getDailyQuestionCounts() async {
-  User? user = firebaseAuth.currentUser;
-  if (user != null) {
-    QuerySnapshot countsSnapshot = await userCollection
-        .doc(user.uid)
-        .collection("daily_counts")
-        .get();
-    Map<String, int> counts = {};
-    for (var doc in countsSnapshot.docs) {
-      counts[doc.id] = doc['count'];
-    }
-    return counts;
-  }
-  return {};
-}
-  Future<void> saveDeneme(String type, Map<String, dynamic> deneme) async {
+  Future<void> saveDailyQuestionCount(String ders, int count) async {
     User? user = firebaseAuth.currentUser;
     if (user != null) {
       await userCollection
           .doc(user.uid)
-          .collection(type)
-          .add(deneme);
+          .collection("daily_counts")
+          .doc(ders)
+          .set({
+        'count': count,
+        'timestamp': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+    }
+  }
+
+// Günlük soru sayılarını alma fonksiyonu
+  Future<Map<String, int>> getDailyQuestionCounts() async {
+    User? user = firebaseAuth.currentUser;
+    if (user != null) {
+      QuerySnapshot countsSnapshot =
+          await userCollection.doc(user.uid).collection("daily_counts").get();
+      Map<String, int> counts = {};
+      for (var doc in countsSnapshot.docs) {
+        counts[doc.id] = doc['count'];
+      }
+      return counts;
+    }
+    return {};
+  }
+
+  Future<void> saveDeneme(String type, Map<String, dynamic> deneme) async {
+    User? user = firebaseAuth.currentUser;
+    if (user != null) {
+      await userCollection.doc(user.uid).collection(type).add(deneme);
     }
   }
 
   Future<List<Map<String, dynamic>>> getDenemeler(String type) async {
     User? user = firebaseAuth.currentUser;
     if (user != null) {
-      QuerySnapshot snapshot = await userCollection
-          .doc(user.uid)
-          .collection(type)
-          .get();
+      QuerySnapshot snapshot =
+          await userCollection.doc(user.uid).collection(type).get();
       return snapshot.docs.map((doc) {
         return {'id': doc.id, ...doc.data() as Map<String, dynamic>};
       }).toList();
     }
     return [];
   }
-
 }

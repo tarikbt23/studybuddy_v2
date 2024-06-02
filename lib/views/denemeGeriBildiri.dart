@@ -1,19 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:study_buddy/loading_indicator.dart';
 import 'package:study_buddy/service/auth_service.dart';
+import 'package:study_buddy/constants.dart';
 
 class DenemeGeriBildirim extends StatefulWidget {
   @override
   _DenemeGeriBildirimState createState() => _DenemeGeriBildirimState();
 }
 
-class _DenemeGeriBildirimState extends State<DenemeGeriBildirim> with SingleTickerProviderStateMixin {
+class _DenemeGeriBildirimState extends State<DenemeGeriBildirim>
+    with SingleTickerProviderStateMixin {
   TabController? _tabController;
+  List<String> aytDersler = [];
+  late Future<void> _initialData;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _initialData = _loadAYTDersler();
+  }
+
+  Future<void> _loadAYTDersler() async {
+    String? alani = await AuthService().getUserField();
+    if (alani != null && aytDersleri.containsKey(alani)) {
+      setState(() {
+        aytDersler = aytDersleri[alani]!;
+      });
+    } else {
+      setState(() {
+        aytDersler = [];
+      });
+    }
   }
 
   @override
@@ -24,24 +42,50 @@ class _DenemeGeriBildirimState extends State<DenemeGeriBildirim> with SingleTick
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Deneme Geri Bildirim'),
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: [
-            Tab(text: 'TYT Denemelerim'),
-            Tab(text: 'AYT Denemelerim'),
-          ],
-        ),
-      ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          DenemeListesi(dersler: ["Türkçe", "Matematik", "Fen Bilimleri", "Sosyal Bilimler"], type: 'TYTDenemelerim'),
-          DenemeListesi(dersler: ["AYT Matematik", "AYT Fizik", "AYT Kimya", "AYT Biyoloji", "AYT Edebiyat", "AYT Tarih", "AYT Coğrafya", "AYT Felsefe"], type: 'AYTDenemelerim'),
-        ],
-      ),
+    return FutureBuilder<void>(
+      future: _initialData,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Scaffold(
+            appBar: AppBar(
+              title: Text('Deneme Geri Bildirim'),
+            ),
+            body: LoadingIndicator(),
+          );
+        } else if (snapshot.hasError) {
+          return Scaffold(
+            appBar: AppBar(
+              title: Text('Deneme Geri Bildirim'),
+            ),
+            body: Center(child: Text('Bir hata oluştu: ${snapshot.error}')),
+          );
+        } else {
+          return Scaffold(
+            appBar: AppBar(
+              title: Text('Deneme Geri Bildirim'),
+              bottom: TabBar(
+                controller: _tabController,
+                tabs: [
+                  Tab(text: 'TYT Denemelerim'),
+                  Tab(text: 'AYT Denemelerim'),
+                ],
+              ),
+            ),
+            body: TabBarView(
+              controller: _tabController,
+              children: [
+                DenemeListesi(dersler: [
+                  "Türkçe",
+                  "Matematik",
+                  "Fen Bilimleri",
+                  "Sosyal Bilimler"
+                ], type: 'TYTDenemelerim'),
+                DenemeListesi(dersler: aytDersler, type: 'AYTDenemelerim'),
+              ],
+            ),
+          );
+        }
+      },
     );
   }
 }
@@ -79,7 +123,7 @@ class _DenemeListesiState extends State<DenemeListesi> {
           onSave: (deneme) async {
             await authService.saveDeneme(widget.type, deneme);
             setState(() {
-              _denemelerFuture = _loadDenemeler(); // Refresh the list
+              _denemelerFuture = _loadDenemeler(); // Listeyi yenile
             });
           },
         );
@@ -104,7 +148,7 @@ class _DenemeListesiState extends State<DenemeListesi> {
             future: _denemelerFuture,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return LoadingIndicator(); 
+                return LoadingIndicator();
               } else if (snapshot.hasError) {
                 return Center(child: Text('Bir hata oluştu'));
               } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
@@ -122,8 +166,11 @@ class _DenemeListesiState extends State<DenemeListesi> {
                         subtitle: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            ...((deneme['sonuclar'] as Map<String, dynamic>).entries.map<Widget>((entry) {
-                              return Text("${entry.key}: Doğru ${entry.value['dogru']}, Yanlış ${entry.value['yanlis']}, Net ${entry.value['net'].toStringAsFixed(2)}");
+                            ...((deneme['sonuclar'] as Map<String, dynamic>)
+                                .entries
+                                .map<Widget>((entry) {
+                              return Text(
+                                  "${entry.key}: Doğru ${entry.value['dogru']}, Yanlış ${entry.value['yanlis']}, Net ${entry.value['net'].toStringAsFixed(2)}");
                             }).toList()),
                             SizedBox(height: 8.0),
                             Text(
@@ -203,7 +250,8 @@ class _DenemeEkleDialogState extends State<DenemeEkleDialog> {
                           decoration: InputDecoration(labelText: 'Doğru'),
                           keyboardType: TextInputType.number,
                           onChanged: (value) {
-                            _sonuclar[ders]!['dogru'] = int.tryParse(value) ?? 0;
+                            _sonuclar[ders]!['dogru'] =
+                                int.tryParse(value) ?? 0;
                             _calculateNet(ders);
                           },
                         ),
@@ -214,7 +262,8 @@ class _DenemeEkleDialogState extends State<DenemeEkleDialog> {
                           decoration: InputDecoration(labelText: 'Yanlış'),
                           keyboardType: TextInputType.number,
                           onChanged: (value) {
-                            _sonuclar[ders]!['yanlis'] = int.tryParse(value) ?? 0;
+                            _sonuclar[ders]!['yanlis'] =
+                                int.tryParse(value) ?? 0;
                             _calculateNet(ders);
                           },
                         ),

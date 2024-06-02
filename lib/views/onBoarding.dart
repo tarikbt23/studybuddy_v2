@@ -20,7 +20,7 @@ class OnboardingScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
-            const SizedBox(height: 30), // Üstten boşluk ekledik
+            const SizedBox(height: 30),
             const Text(
               "Sınava Hangi Alandan Hazırlanıyorsun ?",
               textAlign: TextAlign.center,

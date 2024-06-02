@@ -9,6 +9,7 @@ import 'package:study_buddy/service/provider/auth_provider.dart';
 import 'package:study_buddy/views/mainscreen.dart';
 import 'package:study_buddy/views/welcomepage.dart';
 import 'package:study_buddy/service/provider/theme_provider.dart';
+import 'package:study_buddy/views/onBoarding.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -37,7 +38,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    
     final themeProvider = Provider.of<ThemeProvider>(context);
 
     return FlutterSizer(
@@ -52,11 +52,29 @@ class MyApp extends StatelessWidget {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
             } else if (snapshot.hasData) {
-              return const MainScreen();
+              return FutureBuilder<bool>(
+                future: AuthService().checkIfUserCompletedOnboarding(),
+                builder: (context, onboardingSnapshot) {
+                  if (onboardingSnapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (onboardingSnapshot.hasData && !onboardingSnapshot.data!) {
+                    return OnboardingScreen(onCompleted: () {
+                      AuthService().completeOnboarding();
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => const MainScreen()),
+                      );
+                    });
+                  } else {
+                    return const MainScreen();
+                  }
+                },
+              );
             } else {
               return const WelcomePage();
             }
-          },),
+          },
+        ),
       ),
     );
   }

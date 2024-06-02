@@ -1,5 +1,7 @@
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:study_buddy/loading_indicator.dart';
+import 'package:study_buddy/service/auth_service.dart';
 import 'package:study_buddy/service/motivation_service.dart';
 import 'package:study_buddy/views/settings.dart';
 import 'package:study_buddy/views/startstudy.dart';
@@ -14,10 +16,13 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   String _motivationSoz = '';
   final MotivationService _motivasyonServisi = MotivationService();
+  String? userName;
+  bool isLoading = true; // Yükleme durumu için değişken
 
   @override
   void initState() {
     super.initState();
+    _loadUserName();
     _loadMotivationSoz();
   }
 
@@ -25,147 +30,171 @@ class _MainScreenState extends State<MainScreen> {
     await _motivasyonServisi.loadMotivasyonSozleri();
     setState(() {
       _motivationSoz = _motivasyonServisi.getRandomSoz();
+      _checkLoadingComplete();
     });
+  }
+
+  Future<void> _loadUserName() async {
+    String? name = await AuthService().getUserName();
+    setState(() {
+      userName = name;
+      _checkLoadingComplete();
+    });
+  }
+
+  void _checkLoadingComplete() {
+    if (userName != null && _motivationSoz.isNotEmpty) {
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: SafeArea(
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const SizedBox(height: 20),
-                const Text(
-                  "Hoş Geldin Tarık Berkay",
-                  style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w500,
-                      fontFamily: 'Satoshi'),
-                  textAlign: TextAlign.center, // Metni ortala
-                ),
-                const SizedBox(
-                    height: 60), // Metin ve buton arasındaki boşluk artırıldı
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => const StartStudy()));
-                  },
-                  style: ElevatedButton.styleFrom(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(40),
-                      ),
-                      backgroundColor: const Color(0xffb69edc)),
-                  child: const Padding(
-                    padding: EdgeInsets.all(15),
-                    child: Text(
-                      "Çalışmaya Başla !",
-                      style: TextStyle(fontSize: 18),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 60),
-                const SafeArea(
-                  child: Expanded(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        TranslatedCircle(
-                            'Günlük\n4 saat', Color(0xffc8e3ff), 20),
-                        TranslatedCircle(
-                            'Haftalık\n30 saat', Color(0xffd7caff), 0),
-                        TranslatedCircle(
-                            'En yüksek net\n90', Color(0xffcad7ff), -20),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 150),
-                Center(
-                  child: Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: const Color(0xfff1f0f5),
-                      borderRadius: BorderRadius.circular(40),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.25),
-                          spreadRadius: 3,
-                          blurRadius: 5,
-                          offset: const Offset(0, 3), // gölge efekti
-                        ),
-                      ],
-                    ),
-                    child: Text(
-                      _motivationSoz,
-                      textAlign: TextAlign.center,
+      body: SafeArea(
+        child: isLoading
+            ? LoadingIndicator() 
+            : Container(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const SizedBox(height: 20),
+                    Text(
+                      "Hoş Geldin $userName",
                       style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        fontStyle: FontStyle.italic,
-                        color: Color(0xff936ffc),
+                          fontSize: 24,
+                          fontWeight: FontWeight.w500,
+                          fontFamily: 'Satoshi'),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(
+                        height:
+                            60), 
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const StartStudy()));
+                      },
+                      style: ElevatedButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(40),
+                          ),
+                          backgroundColor: const Color(0xffb69edc)),
+                      child: const Padding(
+                        padding: EdgeInsets.all(15),
+                        child: Text(
+                          "Çalışmaya Başla !",
+                          style: TextStyle(fontSize: 18),
+                        ),
                       ),
                     ),
-                  ),
+                    const SizedBox(height: 60),
+                    const Flexible(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          TranslatedCircle('Günlük\n4 saat', Color(0xffc8e3ff),
+                              20),
+                          TranslatedCircle(
+                              'Haftalık\n30 saat', Color(0xffd7caff), 0),
+                          TranslatedCircle(
+                              'En yüksek net\n90', Color(0xffcad7ff), -20),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 150),
+                    Center(
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: const Color(0xfff1f0f5),
+                          borderRadius: BorderRadius.circular(40),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.25),
+                              spreadRadius: 3,
+                              blurRadius: 5,
+                              offset:
+                                  const Offset(0, 3), // gölge efekti
+                            ),
+                          ],
+                        ),
+                        child: Text(
+                          _motivationSoz,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            fontStyle: FontStyle.italic,
+                            color: Color(0xff936ffc),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+      ),
+      bottomNavigationBar: CurvedNavigationBar(
+        color: const Color(0xff936ffc),
+        backgroundColor: Colors.white,
+        animationDuration: const Duration(milliseconds: 300),
+        items: const [
+          Icon(
+            Icons.home,
+            color: Colors.white,
+            size: 35,
           ),
-        ),
-        bottomNavigationBar: CurvedNavigationBar(
-          color: const Color(0xff936ffc),
-          backgroundColor: Colors.white,
-          animationDuration: const Duration(milliseconds: 300),
-          items: const [
-            Icon(
-              Icons.home,
-              color: Colors.white,
-              size: 35,
-            ),
-            Icon(
-              Icons.emoji_events,
-              color: Colors.white,
-              size: 35,
-            ),
-            Icon(
-              Icons.question_mark,
-              color: Colors.white,
-              size: 35,
-            ),
-            Icon(
-              Icons.settings,
-              color: Colors.white,
-              size: 35,
-            )
-          ],
-          onTap: (index) {
-            setState(() {});
-            switch (index) {
-              case 0:
-                // İlk öğeye tıklandığında yapılacak işlem
-                break;
-              case 1:
-                // İkinci öğeye tıklandığında yapılacak işlem
-                break;
-              case 2:
-                // Üçüncü öğeye tıklandığında yapılacak işlem
-                break;
-              case 3:
-                Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => const SettingsScreen()));
-                break;
-            }
-          },
-        ));
+          Icon(
+            Icons.emoji_events,
+            color: Colors.white,
+            size: 35,
+          ),
+          Icon(
+            Icons.question_mark,
+            color: Colors.white,
+            size: 35,
+          ),
+          Icon(
+            Icons.settings,
+            color: Colors.white,
+            size: 35,
+          )
+        ],
+        onTap: (index) {
+          setState(() {});
+          switch (index) {
+            case 0:
+              // İlk öğeye tıklandığında yapılacak işlem
+              break;
+            case 1:
+              // İkinci öğeye tıklandığında yapılacak işlem
+              break;
+            case 2:
+              // Üçüncü öğeye tıklandığında yapılacak işlem
+              break;
+            case 3:
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const SettingsScreen()));
+              break;
+          }
+        },
+      ),
+    );
   }
 }
 
 class ColoredCircle extends StatelessWidget {
   final String text;
   final Color color;
-  final Color textColor; // Yeni özellik: metin rengi
+  final Color textColor;
 
   const ColoredCircle(this.text, this.color,
       {super.key, this.textColor = Colors.white});
@@ -183,7 +212,7 @@ class ColoredCircle extends StatelessWidget {
       child: Center(
         child: Text(
           text,
-          style: TextStyle(color: textColor), // Metin rengini burada belirleyin
+          style: TextStyle(color: textColor), 
         ),
       ),
     );
@@ -194,7 +223,7 @@ class TranslatedCircle extends StatelessWidget {
   final String text;
   final Color color;
   final double translation;
-  final Color textColor; // Yeni özellik: metin rengi
+  final Color textColor;
 
   const TranslatedCircle(this.text, this.color, this.translation,
       {super.key, this.textColor = Colors.black});
@@ -207,7 +236,7 @@ class TranslatedCircle extends StatelessWidget {
         text,
         color,
         textColor:
-            textColor, // Metin rengini burada iletilen değere göre belirleyin
+            textColor, 
       ),
     );
   }

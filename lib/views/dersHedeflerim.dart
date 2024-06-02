@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:study_buddy/loading_indicator.dart';
 import 'package:study_buddy/service/auth_service.dart';
+import 'package:study_buddy/constants.dart';
 
 class DersHedeflerim extends StatefulWidget {
   @override
@@ -9,20 +10,9 @@ class DersHedeflerim extends StatefulWidget {
 
 class _DersHedeflerimState extends State<DersHedeflerim> {
   final AuthService authService = AuthService();
-  Map<String, int> _hedefler = {
-    "Türkçe": 0,
-    "Matematik": 0,
-    "Fen Bilimleri": 0,
-    "Sosyal Bilimler": 0,
-    "AYT Matematik": 0,
-    "AYT Fizik": 0,
-    "AYT Kimya": 0,
-    "AYT Biyoloji": 0,
-    "AYT Edebiyat": 0,
-    "AYT Tarih": 0,
-    "AYT Coğrafya": 0,
-    "AYT Felsefe": 0,
-  };
+  Map<String, int> _hedefler = {};
+  String? kullaniciAlani;
+  List<String> dersler = [];
   late Future<void> _initialData;
 
   @override
@@ -32,9 +22,22 @@ class _DersHedeflerimState extends State<DersHedeflerim> {
   }
 
   Future<void> _loadTargets() async {
+    await fetchDersler();
     Map<String, int> targets = await authService.getUserTargets();
     setState(() {
       _hedefler.addAll(targets);
+    });
+  }
+
+  Future<void> fetchDersler() async {
+    String? alani = await authService.getUserField();
+    setState(() {
+      kullaniciAlani = alani;
+      if (alani != null && aytDersleri.containsKey(alani)) {
+        dersler = tytDersleri + aytDersleri[alani]!;
+      } else {
+        dersler = tytDersleri;
+      }
     });
   }
 
@@ -72,13 +75,13 @@ class _DersHedeflerimState extends State<DersHedeflerim> {
           } else {
             return ListView.builder(
               padding: EdgeInsets.all(16.0),
-              itemCount: _hedefler.keys.length,
+              itemCount: dersler.length,
               itemBuilder: (context, index) {
-                String ders = _hedefler.keys.elementAt(index);
+                String ders = dersler[index];
                 return Card(
                   child: ListTile(
                     title: Text(ders),
-                    subtitle: Text("Hedef: ${_hedefler[ders]}"),
+                    subtitle: Text("Hedef: ${_hedefler[ders] ?? 0}"),
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
