@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:study_buddy/views/denemeGeriBildiri.dart';
 import 'package:study_buddy/views/dersHedeflerim.dart';
+import 'package:study_buddy/views/ipuclari.dart';
 import 'package:study_buddy/views/kalangun.dart';
 import 'package:study_buddy/views/konuCalis.dart';
 import 'package:study_buddy/views/konulariTara.dart';
@@ -65,14 +66,14 @@ class _StartStudyState extends State<StartStudy> {
                           MaterialPageRoute(
                               builder: (context) => DenemeGeriBildirim()));
                     },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xffcad7ff),
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: 65, vertical: 20),
+                    ),
                     child: Text(
                       'Deneme Geri Bildirimleri',
                       style: TextStyle(color: Colors.grey[800], fontSize: 20),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xffcad7ff),
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 65, vertical: 20),
                     ),
                   ),
                 ],
@@ -94,9 +95,12 @@ class _StartStudyState extends State<StartStudy> {
                   ),
                   MenuButton(
                     icon: Icons.lightbulb_outline,
-                    label: 'Günlük İpucu',
+                    label: 'Faydalı İpuçları',
                     onTap: () {
-                      // Günlük ipucu sayfasına yönlendirme
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => IpuculariScreen()));
                     },
                   ),
                   MenuButton(
@@ -113,13 +117,11 @@ class _StartStudyState extends State<StartStudy> {
                     icon: Icons.bar_chart,
                     label: 'İstatistikler',
                     onTap: () {
-                      // İstatistikler sayfasına yönlendirme
                     },
                   ),
                 ],
               ),
             ),
-            // Alt kısımdaki büyük buton
             Expanded(
               child: Center(
                 child: ElevatedButton(
