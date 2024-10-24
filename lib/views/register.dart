@@ -1,4 +1,5 @@
 import 'package:animate_do/animate_do.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sizer/flutter_sizer.dart';
 import 'package:iconly/iconly.dart';
@@ -22,6 +23,7 @@ class _RegisterPageState extends State<RegisterPage> {
   bool isFocusedName = false;
   bool isFocusedEmail = false;
   bool isFocusedPassword = false;
+  final AuthService authService = AuthService();
 
   @override
   void initState() {
@@ -163,26 +165,37 @@ class _RegisterPageState extends State<RegisterPage> {
                     child: Row(
                       children: [
                         Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: () {
-                              //OnPressed Logic
-                            },
-                            icon: Image.asset('assets/images/google.png'),
-                            label: const Text("Google İle Giriş Yap"),
-                            style: ElevatedButton.styleFrom(
-                                elevation: 0,
-                                textStyle: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w500,
-                                    fontFamily: 'Satoshi'),
-                                backgroundColor: const Color(0xFFF1F0F5),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 10)),
+                            child: ElevatedButton.icon(
+                          onPressed: () async {
+                            // User? user = await authService.signInWithGoogle();
+                            // if (user != null) {
+                            //   // Kullanıcı başarılı bir şekilde giriş yaptıktan sonra yapılacak işlemler
+                            //   Navigator.pushReplacementNamed(context, '/home');
+                            // } else {
+                            //   // Giriş işlemi başarısız olduysa yapılacak işlemler
+                            //   ScaffoldMessenger.of(context).showSnackBar(
+                            //     SnackBar(
+                            //         content: Text(
+                            //             'Google ile giriş başarısız oldu.')),
+                            //   );
+                            // }
+                          },
+                          icon: Image.asset('assets/images/google.png'),
+                          label: const Text("Google İle Giriş Yap"),
+                          style: ElevatedButton.styleFrom(
+                            elevation: 0,
+                            textStyle: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w500,
+                              fontFamily: 'Satoshi',
+                            ),
+                            backgroundColor: const Color(0xFFF1F0F5),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 10),
                           ),
-                        )
+                        ))
                       ],
                     ),
                   ),
