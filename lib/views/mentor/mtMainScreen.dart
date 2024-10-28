@@ -2,6 +2,8 @@ import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:study_buddy/loading_indicator.dart';
 import 'package:study_buddy/service/auth_service.dart';
+import 'package:study_buddy/views/mentor/addStudent.dart';
+import 'package:study_buddy/views/mentor/myStudents.dart';
 import 'package:study_buddy/views/settings.dart';
 
 class MtMainScreen extends StatefulWidget {
@@ -62,7 +64,10 @@ class _MtMainScreenState extends State<MtMainScreen> {
                       context,
                       text: "Öğrencilerim",
                       onTap: () {
-                        // Öğrencilerim ekranına yönlendirme yapılabilir
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const MyStudentsPage()));
                       },
                     ),
                     const SizedBox(height: 20),
@@ -70,7 +75,10 @@ class _MtMainScreenState extends State<MtMainScreen> {
                       context,
                       text: "Öğrenci Ekle",
                       onTap: () {
-                        // Öğrenci ekleme ekranına yönlendirme yapılabilir
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const AddStudentPage()));
                       },
                     ),
                     const SizedBox(height: 60),
@@ -129,7 +137,8 @@ class _MtMainScreenState extends State<MtMainScreen> {
   }
 
   // Geniş buton widget'ı
-  Widget _buildWideButton(BuildContext context, {required String text, required VoidCallback onTap}) {
+  Widget _buildWideButton(BuildContext context,
+      {required String text, required VoidCallback onTap}) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
