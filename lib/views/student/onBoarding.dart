@@ -6,7 +6,7 @@ class OnboardingScreen extends StatelessWidget {
   final VoidCallback onCompleted;
   final AuthService authService = AuthService();
 
-  OnboardingScreen({required this.onCompleted});
+  OnboardingScreen({super.key, required this.onCompleted});
 
   @override
   Widget build(BuildContext context) {

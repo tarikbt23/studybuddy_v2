@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class LoadingIndicator extends StatefulWidget {
+  const LoadingIndicator({super.key});
+
   @override
   _LoadingIndicatorState createState() => _LoadingIndicatorState();
 }

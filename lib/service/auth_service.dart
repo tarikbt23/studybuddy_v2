@@ -4,26 +4,39 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:study_buddy/views/mainscreen.dart';
-import 'package:study_buddy/views/onBoarding.dart';
+import 'package:study_buddy/views/mentor/mtMainScreen.dart';
+import 'package:study_buddy/views/student/mainscreen.dart';
+import 'package:study_buddy/views/student/onBoarding.dart';
 import 'package:study_buddy/views/welcomepage.dart';
 
 class AuthService {
   final userCollection = FirebaseFirestore.instance.collection("users");
   final firebaseAuth = FirebaseAuth.instance;
 
-  Future<void> signUp(BuildContext context,
-      {required String name,
-      required String email,
-      required String password}) async {
-    final navigator = Navigator.of(context);
-    try {
-      final UserCredential userCredential = await firebaseAuth
-          .createUserWithEmailAndPassword(email: email, password: password);
-      if (userCredential.user != null) {
-        await _registerUser(userCredential.user!.uid,
-            name: name, email: email, password: password);
-        Fluttertoast.showToast(msg: "Kayıt başarılı");
+Future<void> signUp(BuildContext context,
+    {required String name,
+    required String email,
+    required String password,
+    required String role}) async {
+  final navigator = Navigator.of(context);
+  try {
+    final UserCredential userCredential = await firebaseAuth
+        .createUserWithEmailAndPassword(email: email, password: password);
+    if (userCredential.user != null) {
+      await _registerUser(userCredential.user!.uid,
+          name: name, email: email, password: password, role: role);
+
+      Fluttertoast.showToast(msg: "Kayıt başarılı");
+
+      if (role == 'mentor') {
+        // If the role is 'mentor', skip onboarding and go to mentor main screen
+        navigator.pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => const MtMainScreen(),
+          ),
+        );
+      } else {
+        // If the role is 'student', show onboarding screen
         navigator.pushReplacement(MaterialPageRoute(
           builder: (context) => OnboardingScreen(onCompleted: () {
             completeOnboarding();
@@ -33,18 +46,31 @@ class AuthService {
           }),
         ));
       }
-    } on FirebaseAuthException catch (e) {
-      Fluttertoast.showToast(msg: e.message!, toastLength: Toast.LENGTH_LONG);
     }
+  } on FirebaseAuthException catch (e) {
+    Fluttertoast.showToast(msg: e.message!, toastLength: Toast.LENGTH_LONG);
   }
+}
 
-  Future<void> signIn(BuildContext context,
-      {required String email, required String password}) async {
-    final navigator = Navigator.of(context);
-    try {
-      final UserCredential userCredential = await firebaseAuth
-          .signInWithEmailAndPassword(email: email, password: password);
-      if (userCredential.user != null) {
+
+
+Future<void> signIn(BuildContext context,
+    {required String email, required String password}) async {
+  final navigator = Navigator.of(context);
+  try {
+    final UserCredential userCredential = await firebaseAuth
+        .signInWithEmailAndPassword(email: email, password: password);
+    if (userCredential.user != null) {
+      // Check the user's role
+      String? role = await getUserRole(); // Get the user role from Firestore
+
+      if (role == 'mentor') {
+        // If the role is 'mentor', skip onboarding and go to mentor main screen
+        navigator.pushReplacement(MaterialPageRoute(
+          builder: (context) => const MtMainScreen(),
+        ));
+      } else if (role == 'student') {
+        // For students, check if they have completed onboarding
         bool hasCompletedOnboarding =
             await _hasCompletedOnboarding(userCredential.user!.uid);
         if (!hasCompletedOnboarding) {
@@ -61,16 +87,22 @@ class AuthService {
             builder: (context) => const MainScreen(),
           ));
         }
+      } else {
+        // Handle unexpected role or null value
+        Fluttertoast.showToast(msg: "Kullanıcı rolü geçersiz.");
       }
-    } on FirebaseAuthException catch (e) {
-      Fluttertoast.showToast(msg: e.message!, toastLength: Toast.LENGTH_LONG);
     }
+  } on FirebaseAuthException catch (e) {
+    Fluttertoast.showToast(msg: e.message!, toastLength: Toast.LENGTH_LONG);
   }
+}
+
+
 
   Future<bool> _hasCompletedOnboarding(String uid) async {
     DocumentSnapshot userDoc = await userCollection.doc(uid).get();
     Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
-    if (userData != null && userData.containsKey('hasCompletedOnboarding')) {
+    if (userData.containsKey('hasCompletedOnboarding')) {
       return userData['hasCompletedOnboarding'] == true;
     }
     return false;
@@ -88,34 +120,48 @@ class AuthService {
   Future<void> _registerUser(String uid,
       {required String name,
       required String email,
-      required String password}) async {
+      required String password,
+      required String role}) async { // Rol ekleyerek kullanıcıyı kaydet
     await userCollection.doc(uid).set({
       "email": email,
       "name": name,
       "firstLogin": DateTime.now(),
       "hasCompletedOnboarding": false,
-      "password": password
+      "password": password,
+      "role": role // Rolü kaydet
     });
   }
 
-  Future<String?> getUserName() async {
-  User? user = firebaseAuth.currentUser;
-  if (user != null) {
-    DocumentSnapshot userDoc = await userCollection.doc(user.uid).get();
-    if (userDoc.exists && userDoc.data() != null) {
-      Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
-      return userData['name'] as String?;
+  // Kullanıcı rolünü almak için yeni fonksiyon
+  Future<String?> getUserRole() async {
+    User? user = firebaseAuth.currentUser;
+    if (user != null) {
+      DocumentSnapshot userDoc = await userCollection.doc(user.uid).get();
+      if (userDoc.exists && userDoc.data() != null) {
+        Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
+        return userData['role'] as String?; // Kullanıcı rolünü döndür
+      }
     }
+    return null;
   }
-  return null;
-}
 
+  Future<String?> getUserName() async {
+    User? user = firebaseAuth.currentUser;
+    if (user != null) {
+      DocumentSnapshot userDoc = await userCollection.doc(user.uid).get();
+      if (userDoc.exists && userDoc.data() != null) {
+        Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
+        return userData['name'] as String?;
+      }
+    }
+    return null;
+  }
 
   Future<void> signOut(BuildContext context) async {
     await firebaseAuth.signOut();
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => WelcomePage()),
+      MaterialPageRoute(builder: (context) => const WelcomePage()),
     );
   }
 
@@ -139,7 +185,6 @@ class AuthService {
     }
   }
 
-  // Kullanıcı alanını getirme fonksiyonu
   Future<String?> getUserField() async {
     User? user = firebaseAuth.currentUser;
     if (user != null) {
@@ -152,14 +197,12 @@ class AuthService {
     return null;
   }
 
-  // Kullanıcı ders süresini kaydetme fonksiyonu
   Future<void> saveStudyTime(String ders, Duration duration) async {
     User? user = firebaseAuth.currentUser;
     if (user != null) {
       String formattedDuration =
           "${duration.inHours}:${duration.inMinutes.remainder(60)}:${duration.inSeconds.remainder(60)}";
 
-      // Mevcut süreyi al
       DocumentSnapshot docSnapshot = await userCollection
           .doc(user.uid)
           .collection("study_times")
@@ -168,7 +211,6 @@ class AuthService {
       String? existingDurationString =
           docSnapshot.exists ? docSnapshot.get('duration') : null;
 
-      // Mevcut süreyi yeni süre ile topla
       Duration totalDuration = duration;
       if (existingDurationString != null) {
         totalDuration += _parseDuration(existingDurationString);
@@ -186,7 +228,6 @@ class AuthService {
     }
   }
 
-  // Kullanıcı hedef verilerini kaydetme fonksiyonu
   Future<void> saveUserTarget(String ders, int hedef) async {
     User? user = firebaseAuth.currentUser;
     if (user != null) {
@@ -197,7 +238,6 @@ class AuthService {
     }
   }
 
-  // Kullanıcı hedef verilerini alma fonksiyonu
   Future<Map<String, int>> getUserTargets() async {
     User? user = firebaseAuth.currentUser;
     if (user != null) {
@@ -212,7 +252,6 @@ class AuthService {
     return {};
   }
 
-  // Günlük hedef verilerini sıfırlama fonksiyonu
   Future<void> resetUserTargets() async {
     User? user = firebaseAuth.currentUser;
     if (user != null) {
@@ -270,7 +309,6 @@ class AuthService {
     }
   }
 
-// Günlük soru sayılarını alma fonksiyonu
   Future<Map<String, int>> getDailyQuestionCounts() async {
     User? user = firebaseAuth.currentUser;
     if (user != null) {

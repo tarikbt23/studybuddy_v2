@@ -4,6 +4,8 @@ import 'package:study_buddy/service/auth_service.dart';
 import 'package:study_buddy/constants.dart';
 
 class DenemeGeriBildirim extends StatefulWidget {
+  const DenemeGeriBildirim({super.key});
+
   @override
   _DenemeGeriBildirimState createState() => _DenemeGeriBildirimState();
 }
@@ -48,24 +50,24 @@ class _DenemeGeriBildirimState extends State<DenemeGeriBildirim>
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Scaffold(
             appBar: AppBar(
-              title: Text('Deneme Geri Bildirim'),
+              title: const Text('Deneme Geri Bildirim'),
             ),
-            body: LoadingIndicator(),
+            body: const LoadingIndicator(),
           );
         } else if (snapshot.hasError) {
           return Scaffold(
             appBar: AppBar(
-              title: Text('Deneme Geri Bildirim'),
+              title: const Text('Deneme Geri Bildirim'),
             ),
             body: Center(child: Text('Bir hata oluştu: ${snapshot.error}')),
           );
         } else {
           return Scaffold(
             appBar: AppBar(
-              title: Text('Deneme Geri Bildirim'),
+              title: const Text('Deneme Geri Bildirim'),
               bottom: TabBar(
                 controller: _tabController,
-                tabs: [
+                tabs: const [
                   Tab(text: 'TYT Denemelerim'),
                   Tab(text: 'AYT Denemelerim'),
                 ],
@@ -74,7 +76,7 @@ class _DenemeGeriBildirimState extends State<DenemeGeriBildirim>
             body: TabBarView(
               controller: _tabController,
               children: [
-                DenemeListesi(dersler: [
+                const DenemeListesi(dersler: [
                   "Türkçe",
                   "Matematik",
                   "Fen Bilimleri",
@@ -94,7 +96,7 @@ class DenemeListesi extends StatefulWidget {
   final List<String> dersler;
   final String type; // TYT veya AYT
 
-  DenemeListesi({required this.dersler, required this.type});
+  const DenemeListesi({super.key, required this.dersler, required this.type});
 
   @override
   _DenemeListesiState createState() => _DenemeListesiState();
@@ -141,18 +143,18 @@ class _DenemeListesiState extends State<DenemeListesi> {
       children: [
         ElevatedButton(
           onPressed: _addDeneme,
-          child: Text('Yeni Deneme Ekle'),
+          child: const Text('Yeni Deneme Ekle'),
         ),
         Expanded(
           child: FutureBuilder<List<Map<String, dynamic>>>(
             future: _denemelerFuture,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return LoadingIndicator();
+                return const LoadingIndicator();
               } else if (snapshot.hasError) {
-                return Center(child: Text('Bir hata oluştu'));
+                return const Center(child: Text('Bir hata oluştu'));
               } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return Center(child: Text('Hiç deneme bulunamadı'));
+                return const Center(child: Text('Hiç deneme bulunamadı'));
               } else {
                 final denemeler = snapshot.data!;
                 return ListView.builder(
@@ -172,10 +174,10 @@ class _DenemeListesiState extends State<DenemeListesi> {
                               return Text(
                                   "${entry.key}: Doğru ${entry.value['dogru']}, Yanlış ${entry.value['yanlis']}, Net ${entry.value['net'].toStringAsFixed(2)}");
                             }).toList()),
-                            SizedBox(height: 8.0),
+                            const SizedBox(height: 8.0),
                             Text(
                               "Toplam Net: ${totalNet.toStringAsFixed(2)}",
-                              style: TextStyle(fontWeight: FontWeight.bold),
+                              style: const TextStyle(fontWeight: FontWeight.bold),
                             ),
                           ],
                         ),
@@ -196,7 +198,7 @@ class DenemeEkleDialog extends StatefulWidget {
   final List<String> dersler;
   final Function(Map<String, dynamic>) onSave;
 
-  DenemeEkleDialog({required this.dersler, required this.onSave});
+  const DenemeEkleDialog({super.key, required this.dersler, required this.onSave});
 
   @override
   _DenemeEkleDialogState createState() => _DenemeEkleDialogState();
@@ -226,28 +228,28 @@ class _DenemeEkleDialogState extends State<DenemeEkleDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text('Deneme Ekle'),
+      title: const Text('Deneme Ekle'),
       content: SingleChildScrollView(
         child: Column(
           children: [
             TextField(
               controller: _tarihController,
-              decoration: InputDecoration(labelText: 'Tarih'),
+              decoration: const InputDecoration(labelText: 'Tarih'),
             ),
             ...widget.dersler.map((ders) {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(height: 16.0), // Üstte boşluk bırakmak için
+                  const SizedBox(height: 16.0), // Üstte boşluk bırakmak için
                   Text(
                     ders,
-                    style: TextStyle(fontWeight: FontWeight.bold), // Kalın font
+                    style: const TextStyle(fontWeight: FontWeight.bold), // Kalın font
                   ),
                   Row(
                     children: [
                       Expanded(
                         child: TextField(
-                          decoration: InputDecoration(labelText: 'Doğru'),
+                          decoration: const InputDecoration(labelText: 'Doğru'),
                           keyboardType: TextInputType.number,
                           onChanged: (value) {
                             _sonuclar[ders]!['dogru'] =
@@ -256,10 +258,10 @@ class _DenemeEkleDialogState extends State<DenemeEkleDialog> {
                           },
                         ),
                       ),
-                      SizedBox(width: 8.0),
+                      const SizedBox(width: 8.0),
                       Expanded(
                         child: TextField(
-                          decoration: InputDecoration(labelText: 'Yanlış'),
+                          decoration: const InputDecoration(labelText: 'Yanlış'),
                           keyboardType: TextInputType.number,
                           onChanged: (value) {
                             _sonuclar[ders]!['yanlis'] =
@@ -273,7 +275,7 @@ class _DenemeEkleDialogState extends State<DenemeEkleDialog> {
                   Text("Net: ${_sonuclar[ders]!['net'].toStringAsFixed(2)}"),
                 ],
               );
-            }).toList(),
+            }),
           ],
         ),
       ),
@@ -282,7 +284,7 @@ class _DenemeEkleDialogState extends State<DenemeEkleDialog> {
           onPressed: () {
             Navigator.of(context).pop();
           },
-          child: Text('İptal'),
+          child: const Text('İptal'),
         ),
         TextButton(
           onPressed: () {
@@ -293,7 +295,7 @@ class _DenemeEkleDialogState extends State<DenemeEkleDialog> {
             widget.onSave(deneme);
             Navigator.of(context).pop();
           },
-          child: Text('Kaydet'),
+          child: const Text('Kaydet'),
         ),
       ],
     );

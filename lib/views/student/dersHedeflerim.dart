@@ -4,13 +4,15 @@ import 'package:study_buddy/service/auth_service.dart';
 import 'package:study_buddy/constants.dart';
 
 class DersHedeflerim extends StatefulWidget {
+  const DersHedeflerim({super.key});
+
   @override
   _DersHedeflerimState createState() => _DersHedeflerimState();
 }
 
 class _DersHedeflerimState extends State<DersHedeflerim> {
   final AuthService authService = AuthService();
-  Map<String, int> _hedefler = {};
+  final Map<String, int> _hedefler = {};
   String? kullaniciAlani;
   List<String> dersler = [];
   late Future<void> _initialData;
@@ -62,19 +64,19 @@ class _DersHedeflerimState extends State<DersHedeflerim> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Ders Hedeflerim"),
+        title: const Text("Ders Hedeflerim"),
         centerTitle: true,
       ),
       body: FutureBuilder<void>(
         future: _initialData,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return LoadingIndicator(); 
+            return const LoadingIndicator(); 
           } else if (snapshot.hasError) {
             return Center(child: Text('Bir hata oluştu: ${snapshot.error}'));
           } else {
             return ListView.builder(
-              padding: EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(16.0),
               itemCount: dersler.length,
               itemBuilder: (context, index) {
                 String ders = dersler[index];
@@ -86,11 +88,11 @@ class _DersHedeflerimState extends State<DersHedeflerim> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         IconButton(
-                          icon: Icon(Icons.remove),
+                          icon: const Icon(Icons.remove),
                           onPressed: () => _decrement(ders),
                         ),
                         IconButton(
-                          icon: Icon(Icons.add),
+                          icon: const Icon(Icons.add),
                           onPressed: () => _increment(ders),
                         ),
                       ],

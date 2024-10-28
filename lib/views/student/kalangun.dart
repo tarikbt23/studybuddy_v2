@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class Kalangun extends StatefulWidget {
-  const Kalangun({Key? key}) : super(key: key);
+  const Kalangun({super.key});
 
   @override
   State<Kalangun> createState() => _KalangunState();
@@ -10,16 +10,16 @@ class Kalangun extends StatefulWidget {
 class _KalangunState extends State<Kalangun> {
   @override
   Widget build(BuildContext context) {
-    int year = 2024;
+    int year = 2025;
     int month = 6;
-    int day = 8;
+    int day = 14;
 
     DateTime now = DateTime.now();
     DateTime selectedDate = DateTime(year, month, day);
     int difference = selectedDate.difference(now).inDays;
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'Sınava Kaç Gün Var ?',
         ),
       ),

@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:study_buddy/views/denemeGeriBildiri.dart';
-import 'package:study_buddy/views/dersHedeflerim.dart';
-import 'package:study_buddy/views/ipuclari.dart';
-import 'package:study_buddy/views/kalangun.dart';
-import 'package:study_buddy/views/konuCalis.dart';
-import 'package:study_buddy/views/konulariTara.dart';
-import 'package:study_buddy/views/kronometre.dart';
+import 'package:study_buddy/views/student/denemeGeriBildiri.dart';
+import 'package:study_buddy/views/student/dersHedeflerim.dart';
+import 'package:study_buddy/views/student/ipuclari.dart';
+import 'package:study_buddy/views/student/kalangun.dart';
+import 'package:study_buddy/views/student/konuCalis.dart';
+import 'package:study_buddy/views/student/konulariTara.dart';
 
 class StartStudy extends StatefulWidget {
   const StartStudy({super.key});
@@ -33,30 +32,30 @@ class _StartStudyState extends State<StartStudy> {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => KonulariTara()));
+                              builder: (context) => const KonulariTara()));
                     },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xffc8e3ff),
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: 120, vertical: 20),
+                    ),
                     child: Text('Konuları Tara',
                         style:
                             TextStyle(color: Colors.grey[800], fontSize: 20)),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xffc8e3ff),
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 120, vertical: 20),
-                    ),
                   ),
                   ElevatedButton(
                     onPressed: () {
                       Navigator.push(context,
-                          MaterialPageRoute(builder: (context) => KonuCalis()));
+                          MaterialPageRoute(builder: (context) => const KonuCalis()));
                     },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xffd7caff),
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: 130, vertical: 20),
+                    ),
                     child: Text(
                       'Konu Çalış',
                       style: TextStyle(color: Colors.grey[800], fontSize: 20),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xffd7caff),
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 130, vertical: 20),
                     ),
                   ),
                   ElevatedButton(
@@ -64,7 +63,7 @@ class _StartStudyState extends State<StartStudy> {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => DenemeGeriBildirim()));
+                              builder: (context) => const DenemeGeriBildirim()));
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xffcad7ff),
@@ -100,7 +99,7 @@ class _StartStudyState extends State<StartStudy> {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => IpuculariScreen()));
+                              builder: (context) => const IpuculariScreen()));
                     },
                   ),
                   MenuButton(
@@ -129,15 +128,15 @@ class _StartStudyState extends State<StartStudy> {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => DersHedeflerim()));
+                            builder: (context) => const DersHedeflerim()));
                   },
-                  child: Text(
-                    'Günlük Ders Hedeflerim',
-                    style: TextStyle(color: Colors.white),
-                  ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.deepPurple,
-                    padding: EdgeInsets.symmetric(horizontal: 70, vertical: 20),
+                    padding: const EdgeInsets.symmetric(horizontal: 70, vertical: 20),
+                  ),
+                  child: const Text(
+                    'Günlük Ders Hedeflerim',
+                    style: TextStyle(color: Colors.white),
                   ),
                 ),
               ),
@@ -155,8 +154,7 @@ class MenuButton extends StatelessWidget {
   final VoidCallback onTap;
 
   const MenuButton(
-      {Key? key, required this.icon, required this.label, required this.onTap})
-      : super(key: key);
+      {super.key, required this.icon, required this.label, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -169,7 +167,7 @@ class MenuButton extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               Icon(icon, size: 40, color: Colors.white),
-              Text(label, style: TextStyle(color: Colors.white)),
+              Text(label, style: const TextStyle(color: Colors.white)),
             ],
           ),
         ),

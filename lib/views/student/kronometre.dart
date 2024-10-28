@@ -4,7 +4,7 @@ import 'package:study_buddy/service/auth_service.dart';
 class Kronometre extends StatefulWidget {
   final String ders;
 
-  Kronometre({required this.ders});
+  const Kronometre({super.key, required this.ders});
 
   @override
   _KronometreState createState() => _KronometreState();
@@ -44,7 +44,7 @@ class _KronometreState extends State<Kronometre> {
       setState(() {
         _formattedTime = _formatDuration(_stopwatch.elapsed);
       });
-      Future.delayed(Duration(seconds: 1), _updateTime);
+      Future.delayed(const Duration(seconds: 1), _updateTime);
     }
   }
 
@@ -76,33 +76,33 @@ class _KronometreState extends State<Kronometre> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
+            const Text(
               "Çalışma Süresi",
               style: TextStyle(fontSize: 24),
             ),
             Text(
               _formattedTime,
-              style: TextStyle(fontSize: 48),
+              style: const TextStyle(fontSize: 48),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 ElevatedButton(
                   onPressed: _isRunning ? null : _startStopwatch,
-                  child: Text("Başlat"),
+                  child: const Text("Başlat"),
                 ),
-                SizedBox(width: 20),
+                const SizedBox(width: 20),
                 ElevatedButton(
                   onPressed: _isRunning ? _stopStopwatch : null,
-                  child: Text("Durdur"),
+                  child: const Text("Durdur"),
                 ),
-                SizedBox(width: 20),
+                const SizedBox(width: 20),
                 ElevatedButton(
                   onPressed: _stopwatch.isRunning || _stopwatch.elapsed.inSeconds == 0
                       ? null
                       : _saveTime,
-                  child: Text("Kaydet"),
+                  child: const Text("Kaydet"),
                 ),
               ],
             ),

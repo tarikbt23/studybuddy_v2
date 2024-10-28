@@ -4,7 +4,7 @@ import 'package:study_buddy/loading_indicator.dart';
 import 'package:study_buddy/service/auth_service.dart';
 import 'package:study_buddy/service/motivation_service.dart';
 import 'package:study_buddy/views/settings.dart';
-import 'package:study_buddy/views/startstudy.dart';
+import 'package:study_buddy/views/student/startstudy.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -55,7 +55,7 @@ class _MainScreenState extends State<MainScreen> {
     return Scaffold(
       body: SafeArea(
         child: isLoading
-            ? LoadingIndicator() 
+            ? const LoadingIndicator() 
             : Container(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Column(

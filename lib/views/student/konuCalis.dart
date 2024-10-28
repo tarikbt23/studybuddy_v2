@@ -4,9 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:study_buddy/loading_indicator.dart';
 import 'package:study_buddy/service/auth_service.dart';
 import 'package:study_buddy/constants.dart';
-import 'package:study_buddy/views/kronometre.dart';
+import 'package:study_buddy/views/student/kronometre.dart';
 
 class KonuCalis extends StatefulWidget {
+  const KonuCalis({super.key});
+
   @override
   _KonuCalisState createState() => _KonuCalisState();
 }
@@ -62,19 +64,19 @@ class _KonuCalisState extends State<KonuCalis> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Konu Çalış"),
+        title: const Text("Konu Çalış"),
         centerTitle: true,
       ),
       body: FutureBuilder<void>(
         future: _initialData,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return LoadingIndicator(); // Özelleştirilmiş yükleme göstergesini kullanın
+            return const LoadingIndicator(); // Özelleştirilmiş yükleme göstergesini kullanın
           } else if (snapshot.hasError) {
             return Center(child: Text('Bir hata oluştu: ${snapshot.error}'));
           } else {
             return ListView.builder(
-              padding: EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(16.0),
               itemCount: dersler.length,
               itemBuilder: (context, index) {
                 return Card(

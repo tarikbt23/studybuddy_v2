@@ -1,10 +1,10 @@
 import 'package:animate_do/animate_do.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sizer/flutter_sizer.dart';
 import 'package:iconly/iconly.dart';
 import '../../service/auth_service.dart';
 import '../../widgets/auth_widgets.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -17,6 +17,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final _tName = TextEditingController();
   final _tEmail = TextEditingController();
   final _tPassword = TextEditingController();
+  String? selectedRole;
   var focusNodeName = FocusNode();
   var focusNodeEmail = FocusNode();
   var focusNodePassword = FocusNode();
@@ -27,7 +28,6 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     focusNodeName.addListener(() {
       setState(() {
         isFocusedName = focusNodeName.hasFocus;
@@ -140,6 +140,36 @@ class _RegisterPageState extends State<RegisterPage> {
                     fadeInDelay: const Duration(milliseconds: 400),
                     fadeInDuration: const Duration(milliseconds: 500),
                   ),
+                  SizedBox(
+                    height: 1.h,
+                  ),
+                  FadeInDown(
+                    delay: const Duration(milliseconds: 400),
+                    duration: const Duration(milliseconds: 500),
+                    child: DropdownButtonFormField<String>(
+                      value: selectedRole,
+                      hint: const Text('Rol Seçin'),
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          selectedRole = newValue;
+                        });
+                      },
+                      items: <String>['student', 'mentor']
+                          .map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value == 'student'
+                              ? 'Öğrenciyim'
+                              : 'Rehber Öğretmenim'),
+                        );
+                      }).toList(),
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                    ),
+                  ),
                   const Expanded(
                       child: SizedBox(
                     height: 10,
@@ -150,11 +180,18 @@ class _RegisterPageState extends State<RegisterPage> {
                     child: Row(
                       children: [
                         Expanded(
-                            child: actionButton('Kayıt Ol',
-                                onTap: () => AuthService().signUp(context,
-                                    name: _tName.text,
-                                    email: _tEmail.text,
-                                    password: _tPassword.text)))
+                            child: actionButton('Kayıt Ol', onTap: () {
+                          if (selectedRole == null) {
+                            Fluttertoast.showToast(
+                                msg: 'Lütfen bir rol seçiniz!');
+                          } else {
+                            AuthService().signUp(context,
+                                name: _tName.text,
+                                email: _tEmail.text,
+                                password: _tPassword.text,
+                                role: selectedRole!);
+                          }
+                        }))
                       ],
                     ),
                   ),
