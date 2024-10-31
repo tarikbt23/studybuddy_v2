@@ -132,6 +132,15 @@ Future<void> signIn(BuildContext context,
     });
   }
 
+  Future<void> updateResetTime(int hour) async {
+  User? user = FirebaseAuth.instance.currentUser;
+  if (user != null) {
+    await FirebaseFirestore.instance.collection('users').doc(user.uid).update({
+      'reset_time': hour,
+    });
+  }
+}
+
   // Kullanıcı rolünü almak için yeni fonksiyon
   Future<String?> getUserRole() async {
     User? user = firebaseAuth.currentUser;
