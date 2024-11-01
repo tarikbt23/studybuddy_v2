@@ -79,7 +79,7 @@ class OnboardingScreen extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   const Text(
-                    "Günlük çalışma süresi için sıfırlama saatini seçin.",
+                    "Günlük çalışma süresi için sıfırlama saatini seçin. Bu kısmı dilediğinizde ayarlardan değiştirebileceksiniz.",
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 20),

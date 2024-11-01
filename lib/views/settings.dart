@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:study_buddy/service/auth_service.dart';
 import 'package:study_buddy/service/provider/theme_provider.dart';
 import 'package:study_buddy/views/accountData.dart';
+import 'package:study_buddy/views/student/resetTimeSettings.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -33,6 +34,16 @@ class SettingsScreen extends StatelessWidget {
             onTap: () {
               Navigator.push(context,
                   MaterialPageRoute(builder: (context) => const AccountData()));
+            },
+          ),
+          ListTile(
+            title: const Text('Çalışma Saatimi Değiştir'),
+            leading: const Icon(Icons.timer_sharp),
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const ResetTimeSettings()));
             },
           ),
           ListTile(

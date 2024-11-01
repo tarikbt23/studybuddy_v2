@@ -141,6 +141,7 @@ Future<void> signIn(BuildContext context,
   }
 }
 
+
   // Kullanıcı rolünü almak için yeni fonksiyon
   Future<String?> getUserRole() async {
     User? user = firebaseAuth.currentUser;
@@ -152,6 +153,19 @@ Future<void> signIn(BuildContext context,
       }
     }
     return null;
+  }
+  
+    // Sıfırlama saatini almak için metot
+  Future<int?> getResetTime() async {
+    User? user = firebaseAuth.currentUser;
+    if (user != null) {
+      DocumentSnapshot userDoc = await userCollection.doc(user.uid).get();
+      if (userDoc.exists) {
+        Map<String, dynamic>? userData = userDoc.data() as Map<String, dynamic>?;
+        return userData?['reset_time'] as int?;
+      }
+    }
+    return null; // Eğer reset_time ayarlı değilse
   }
 
   Future<String?> getUserName() async {
