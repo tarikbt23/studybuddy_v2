@@ -5,6 +5,7 @@ import 'package:study_buddy/views/student/ipuclari.dart';
 import 'package:study_buddy/views/student/kalangun.dart';
 import 'package:study_buddy/views/student/konuCalis.dart';
 import 'package:study_buddy/views/student/konulariTara.dart';
+import 'package:study_buddy/views/student/statistics.dart';
 
 class StartStudy extends StatefulWidget {
   const StartStudy({super.key});
@@ -116,6 +117,10 @@ class _StartStudyState extends State<StartStudy> {
                     icon: Icons.bar_chart,
                     label: 'İstatistikler',
                     onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const StatisticsPage()));
                     },
                   ),
                 ],

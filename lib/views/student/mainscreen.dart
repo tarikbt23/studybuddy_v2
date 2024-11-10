@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:study_buddy/loading_indicator.dart';
 import 'package:study_buddy/service/auth_service.dart';
 import 'package:study_buddy/service/motivation_service.dart';
+import 'package:study_buddy/views/leaderBoard.dart';
 import 'package:study_buddy/views/settings.dart';
 import 'package:study_buddy/views/student/startstudy.dart';
 
@@ -173,7 +174,10 @@ class _MainScreenState extends State<MainScreen> {
               // İlk öğeye tıklandığında yapılacak işlem
               break;
             case 1:
-              // İkinci öğeye tıklandığında yapılacak işlem
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const LeaderboardPage())); 
               break;
             case 2:
               // Üçüncü öğeye tıklandığında yapılacak işlem

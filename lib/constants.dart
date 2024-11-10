@@ -1,8 +1,13 @@
 const List<String> tytDersleri = [
-  "Türkçe",
-  "Matematik",
-  "Fen Bilimleri",
-  "Sosyal Bilimler"
+  "TYT Türkçe",
+  "TYT Matematik",
+  "TYT Tarih",
+  "TYT Coğrafya",
+  "TYT Felsefe",
+  "TYT Din Kültürü",
+  "TYT Fizik",
+  "TYT Kimya",
+  "TYT Biyoloji"
 ];
 
 const Map<String, List<String>> aytDersleri = {

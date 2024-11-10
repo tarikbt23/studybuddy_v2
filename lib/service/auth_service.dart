@@ -8,96 +8,89 @@ import 'package:study_buddy/views/mentor/mtMainScreen.dart';
 import 'package:study_buddy/views/student/mainscreen.dart';
 import 'package:study_buddy/views/student/onBoarding.dart';
 import 'package:study_buddy/views/welcomepage.dart';
+import 'package:intl/intl.dart';
 
 class AuthService {
   final userCollection = FirebaseFirestore.instance.collection("users");
   final firebaseAuth = FirebaseAuth.instance;
 
-Future<void> signUp(BuildContext context,
-    {required String name,
-    required String email,
-    required String password,
-    required String role}) async {
-  final navigator = Navigator.of(context);
-  try {
-    final UserCredential userCredential = await firebaseAuth
-        .createUserWithEmailAndPassword(email: email, password: password);
-    if (userCredential.user != null) {
-      await _registerUser(userCredential.user!.uid,
-          name: name, email: email, password: password, role: role);
+  Future<void> signUp(BuildContext context,
+      {required String name,
+      required String email,
+      required String password,
+      required  String role}) async {
+    final navigator = Navigator.of(context);
+    try {
+      final UserCredential userCredential = await firebaseAuth
+          .createUserWithEmailAndPassword(email: email, password: password);
+      if (userCredential.user != null) {
+        await _registerUser(userCredential.user!.uid,
+            name: name, email: email, password: password, role: role);
 
-      Fluttertoast.showToast(msg: "Kayıt başarılı");
+        Fluttertoast.showToast(msg: "Kayıt başarılı");
 
-      if (role == 'mentor') {
-        // If the role is 'mentor', skip onboarding and go to mentor main screen
-        navigator.pushReplacement(
-          MaterialPageRoute(
-            builder: (context) => const MtMainScreen(),
-          ),
-        );
-      } else {
-        // If the role is 'student', show onboarding screen
-        navigator.pushReplacement(MaterialPageRoute(
-          builder: (context) => OnboardingScreen(onCompleted: () {
-            completeOnboarding();
-            navigator.pushReplacement(MaterialPageRoute(
-              builder: (context) => const MainScreen(),
-            ));
-          }),
-        ));
-      }
-    }
-  } on FirebaseAuthException catch (e) {
-    Fluttertoast.showToast(msg: e.message!, toastLength: Toast.LENGTH_LONG);
-  }
-}
-
-
-
-Future<void> signIn(BuildContext context,
-    {required String email, required String password}) async {
-  final navigator = Navigator.of(context);
-  try {
-    final UserCredential userCredential = await firebaseAuth
-        .signInWithEmailAndPassword(email: email, password: password);
-    if (userCredential.user != null) {
-      // Check the user's role
-      String? role = await getUserRole(); // Get the user role from Firestore
-
-      if (role == 'mentor') {
-        // If the role is 'mentor', skip onboarding and go to mentor main screen
-        navigator.pushReplacement(MaterialPageRoute(
-          builder: (context) => const MtMainScreen(),
-        ));
-      } else if (role == 'student') {
-        // For students, check if they have completed onboarding
-        bool hasCompletedOnboarding =
-            await _hasCompletedOnboarding(userCredential.user!.uid);
-        if (!hasCompletedOnboarding) {
+        if (role == 'mentor') {
+          navigator.pushReplacement(
+            MaterialPageRoute(
+              builder: (context) => const MtMainScreen(),
+            ),
+          );
+        } else {
           navigator.pushReplacement(MaterialPageRoute(
             builder: (context) => OnboardingScreen(onCompleted: () {
               completeOnboarding();
-              navigator.pushReplacement(MaterialPageRoute(
-                builder: (context) => const MainScreen(),
-              ));
+              navigator.pushReplacement(
+                MaterialPageRoute(builder: (context) => const MainScreen()),
+              );
             }),
           ));
-        } else {
-          navigator.pushReplacement(MaterialPageRoute(
-            builder: (context) => const MainScreen(),
-          ));
         }
-      } else {
-        // Handle unexpected role or null value
-        Fluttertoast.showToast(msg: "Kullanıcı rolü geçersiz.");
       }
+    } on FirebaseAuthException catch (e) {
+      Fluttertoast.showToast(msg: e.message!, toastLength: Toast.LENGTH_LONG);
     }
-  } on FirebaseAuthException catch (e) {
-    Fluttertoast.showToast(msg: e.message!, toastLength: Toast.LENGTH_LONG);
   }
-}
 
+  Future<void> signIn(BuildContext context,
+      {required String email, required String  password}) async {
+    final navigator = Navigator.of(context);
+    try {
+      final UserCredential userCredential = await firebaseAuth
+          .signInWithEmailAndPassword(email: email, password: password);
+      if (userCredential.user != null) {
+        String? role = await getUserRole();
 
+        if (role == 'mentor') {
+          navigator.pushReplacement(
+            MaterialPageRoute(builder: (context) => const MtMainScreen()),
+          );
+        } else if (role == 'student') {
+          bool hasCompletedOnboarding =
+              await _hasCompletedOnboarding(userCredential.user!.uid);
+          if (!hasCompletedOnboarding) {
+            navigator.pushReplacement(
+              MaterialPageRoute(
+                builder: (context) => OnboardingScreen(onCompleted: () {
+                  completeOnboarding();
+                  navigator.pushReplacement(
+                    MaterialPageRoute(builder: (context) => const MainScreen()),
+                  );
+                }),
+              ),
+            );
+          } else {
+            navigator.pushReplacement(
+              MaterialPageRoute(builder: (context) => const MainScreen()),
+            );
+          }
+        } else {
+          Fluttertoast.showToast(msg: "Kullanık rolü geçersiz.");
+        }
+      }
+    } on FirebaseAuthException catch (e) {
+      Fluttertoast.showToast(msg: e.message!, toastLength: Toast.LENGTH_LONG);
+    }
+  }
 
   Future<bool> _hasCompletedOnboarding(String uid) async {
     DocumentSnapshot userDoc = await userCollection.doc(uid).get();
@@ -121,51 +114,48 @@ Future<void> signIn(BuildContext context,
       {required String name,
       required String email,
       required String password,
-      required String role}) async { // Rol ekleyerek kullanıcıyı kaydet
+      required String role}) async {
     await userCollection.doc(uid).set({
       "email": email,
       "name": name,
       "firstLogin": DateTime.now(),
       "hasCompletedOnboarding": false,
       "password": password,
-      "role": role // Rolü kaydet
+      "role": role
     });
   }
 
   Future<void> updateResetTime(int hour) async {
-  User? user = FirebaseAuth.instance.currentUser;
-  if (user != null) {
-    await FirebaseFirestore.instance.collection('users').doc(user.uid).update({
-      'reset_time': hour,
-    });
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      await FirebaseFirestore.instance.collection('users').doc(user.uid).update({
+        'reset_time': hour,
+      });
+    }
   }
-}
 
-
-  // Kullanıcı rolünü almak için yeni fonksiyon
   Future<String?> getUserRole() async {
     User? user = firebaseAuth.currentUser;
     if (user != null) {
       DocumentSnapshot userDoc = await userCollection.doc(user.uid).get();
       if (userDoc.exists && userDoc.data() != null) {
-        Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
-        return userData['role'] as String?; // Kullanıcı rolünü döndür
+        Map<String, dynamic> userData = userDoc.data() as Map<String,  dynamic>;
+        return userData['role'] as String?;
       }
     }
     return null;
   }
-  
-    // Sıfırlama saatini almak için metot
+
   Future<int?> getResetTime() async {
     User? user = firebaseAuth.currentUser;
     if (user != null) {
       DocumentSnapshot userDoc = await userCollection.doc(user.uid).get();
       if (userDoc.exists) {
-        Map<String, dynamic>? userData = userDoc.data() as Map<String, dynamic>?;
+        Map<String, dynamic>? userData = userDoc.data() as Map<String,  dynamic>?;
         return userData?['reset_time'] as int?;
       }
     }
-    return null; // Eğer reset_time ayarlı değilse
+    return null;
   }
 
   Future<String?> getUserName() async {
@@ -173,7 +163,7 @@ Future<void> signIn(BuildContext context,
     if (user != null) {
       DocumentSnapshot userDoc = await userCollection.doc(user.uid).get();
       if (userDoc.exists && userDoc.data() != null) {
-        Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
+        Map<String,  dynamic> userData = userDoc.data() as Map<String,  dynamic>;
         return userData['name'] as String?;
       }
     }
@@ -194,7 +184,7 @@ Future<void> signIn(BuildContext context,
       DocumentSnapshot userDoc =
           await userCollection.doc(currentUser.uid).get();
       if (userDoc.exists && userDoc.data() != null) {
-        Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
+        Map<String,  dynamic> userData = userDoc.data() as Map<String,  dynamic>;
         return userData['hasCompletedOnboarding'] ?? false;
       }
     }
@@ -213,7 +203,7 @@ Future<void> signIn(BuildContext context,
     if (user != null) {
       DocumentSnapshot userDoc = await userCollection.doc(user.uid).get();
       if (userDoc.exists && userDoc.data() != null) {
-        Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
+        Map<String,  dynamic> userData = userDoc.data() as Map<String,  dynamic>;
         return userData['alani'] as String?;
       }
     }
@@ -353,15 +343,89 @@ Future<void> signIn(BuildContext context,
     }
   }
 
-  Future<List<Map<String, dynamic>>> getDenemeler(String type) async {
+  Future<List<Map<String,  dynamic>>> getDenemeler(String type) async {
     User? user = firebaseAuth.currentUser;
     if (user != null) {
       QuerySnapshot snapshot =
           await userCollection.doc(user.uid).collection(type).get();
       return snapshot.docs.map((doc) {
-        return {'id': doc.id, ...doc.data() as Map<String, dynamic>};
+        return {'id': doc.id, ...doc.data() as Map<String,  dynamic>};
       }).toList();
     }
     return [];
+  }
+
+  Future<List<Map<String,  dynamic>>> getLeaderboard() async {
+    QuerySnapshot usersSnapshot = await userCollection.get();
+    List<Map<String,  dynamic>> leaderboard = [];
+
+    for (var userDoc in usersSnapshot.docs) {
+      String userId = userDoc.id;
+      String userName = userDoc['name'] ?? 'Unknown';
+      Map<String, Duration> userTotalDuration = {};
+      Duration overallTotalDuration = Duration.zero;
+
+      QuerySnapshot studyTimesSnapshot =
+          await userCollection.doc(userId).collection('study_times').get();
+
+      for (var studyDoc in studyTimesSnapshot.docs) {
+        String dersAdi = studyDoc.id;
+        String durationString = studyDoc['duration'];
+        Duration duration = _parseDuration(durationString);
+
+        userTotalDuration[dersAdi] = duration;
+        overallTotalDuration += duration;
+      }
+
+      leaderboard.add({
+        'name': userName,
+        'totalDuration': overallTotalDuration,
+        'studyTimes': userTotalDuration,
+      });
+    }
+
+    leaderboard.sort((a, b) => b['totalDuration'].compareTo(a['totalDuration']));
+    return leaderboard;
+  }
+
+  Future<Map<String, Map<String, Duration>>> getUserStudyStatistics(String uid) async {
+    User? user = firebaseAuth.currentUser;
+    if (user == null) return {};
+
+    DateTime now = DateTime.now();
+    DateTime today = DateTime(now.year, now.month, now.day);
+    DateTime oneWeekAgo = today.subtract(const Duration(days: 7));
+    DateTime oneMonthAgo = DateTime(now.year, now.month - 1, now.day);
+
+    Map<String, Duration> dailyDuration = {};
+    Map<String, Duration> weeklyDuration = {};
+    Map<String, Duration> monthlyDuration = {};
+
+    QuerySnapshot studyTimesSnapshot = await userCollection
+        .doc(user.uid)
+        .collection('study_times')
+        .orderBy('timestamp', descending: true)
+        .get();
+
+    for (var doc in studyTimesSnapshot.docs) {
+      DateTime timestamp = (doc['timestamp'] as Timestamp).toDate();
+      Duration duration = _parseDuration(doc['duration']);
+
+      if (timestamp.isAfter(today)) {
+        dailyDuration[doc.id] = (dailyDuration[doc.id] ?? Duration.zero) + duration;
+      }
+      if (timestamp.isAfter(oneWeekAgo)) {
+        weeklyDuration[doc.id] = (weeklyDuration[doc.id] ?? Duration.zero) + duration;
+      }
+      if (timestamp.isAfter(oneMonthAgo)) {
+        monthlyDuration[doc.id] = (monthlyDuration[doc.id] ?? Duration.zero) + duration;
+      }
+    }
+
+    return {
+      'daily': dailyDuration,
+      'weekly': weeklyDuration,
+      'monthly': monthlyDuration,
+    };
   }
 }
