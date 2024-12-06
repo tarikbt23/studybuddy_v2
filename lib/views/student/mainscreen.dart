@@ -18,7 +18,7 @@ class _MainScreenState extends State<MainScreen> {
   String _motivationSoz = '';
   final MotivationService _motivasyonServisi = MotivationService();
   String? userName;
-  bool isLoading = true; // Yükleme durumu için değişken
+  bool isLoading = true;
 
   @override
   void initState() {
@@ -56,7 +56,11 @@ class _MainScreenState extends State<MainScreen> {
     return Scaffold(
       body: SafeArea(
         child: isLoading
-            ? const LoadingIndicator() 
+            ? const Center(
+                child: CircularProgressIndicator(
+                  color: Color(0xff936ffc),
+                ),
+              )
             : Container(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Column(
@@ -64,16 +68,15 @@ class _MainScreenState extends State<MainScreen> {
                   children: [
                     const SizedBox(height: 20),
                     Text(
-                      "Hoş Geldin $userName",
+                      "Hoş Geldin, $userName!",
                       style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.w500,
-                          fontFamily: 'Satoshi'),
+                        fontSize: 26,
+                        fontWeight: FontWeight.w600,
+                        fontFamily: 'Satoshi',
+                      ),
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(
-                        height:
-                            60), 
+                    const SizedBox(height: 50),
                     ElevatedButton(
                       onPressed: () {
                         Navigator.push(
@@ -82,33 +85,41 @@ class _MainScreenState extends State<MainScreen> {
                                 builder: (context) => const StartStudy()));
                       },
                       style: ElevatedButton.styleFrom(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(40),
-                          ),
-                          backgroundColor: const Color(0xffb69edc)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(40),
+                        ),
+                        backgroundColor: const Color(0xffb69edc),
+                      ),
                       child: const Padding(
                         padding: EdgeInsets.all(15),
                         child: Text(
-                          "Çalışmaya Başla !",
+                          "Çalışmaya Başla!",
                           style: TextStyle(fontSize: 18),
                         ),
                       ),
                     ),
-                    const SizedBox(height: 60),
-                    const Flexible(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          TranslatedCircle('Günlük\n4 saat', Color(0xffc8e3ff),
-                              20),
-                          TranslatedCircle(
-                              'Haftalık\n30 saat', Color(0xffd7caff), 0),
-                          TranslatedCircle(
-                              'En yüksek net\n90', Color(0xffcad7ff), -20),
-                        ],
-                      ),
+                    const SizedBox(height: 40),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        ProgressCircle(
+                          label: "Günlük\n4 saat",
+                          percentage: 0.5,
+                          color: const Color(0xffc8e3ff),
+                        ),
+                        ProgressCircle(
+                          label: "Haftalık\n30 saat",
+                          percentage: 0.7,
+                          color: const Color(0xffd7caff),
+                        ),
+                        ProgressCircle(
+                          label: "En yüksek net\n90",
+                          percentage: 1.0,
+                          color: const Color(0xffcad7ff),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 150),
+                    const Spacer(),
                     Center(
                       child: Container(
                         padding: const EdgeInsets.all(16),
@@ -117,11 +128,10 @@ class _MainScreenState extends State<MainScreen> {
                           borderRadius: BorderRadius.circular(40),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.grey.withOpacity(0.25),
+                              color: Colors.grey.withOpacity(0.5),
                               spreadRadius: 3,
                               blurRadius: 5,
-                              offset:
-                                  const Offset(0, 3), // gölge efekti
+                              offset: const Offset(0, 3),
                             ),
                           ],
                         ),
@@ -137,6 +147,7 @@ class _MainScreenState extends State<MainScreen> {
                         ),
                       ),
                     ),
+                    const SizedBox(height: 60),
                   ],
                 ),
               ),
@@ -146,47 +157,28 @@ class _MainScreenState extends State<MainScreen> {
         backgroundColor: Colors.white,
         animationDuration: const Duration(milliseconds: 300),
         items: const [
-          Icon(
-            Icons.home,
-            color: Colors.white,
-            size: 35,
-          ),
-          Icon(
-            Icons.emoji_events,
-            color: Colors.white,
-            size: 35,
-          ),
-          Icon(
-            Icons.question_mark,
-            color: Colors.white,
-            size: 35,
-          ),
-          Icon(
-            Icons.settings,
-            color: Colors.white,
-            size: 35,
-          )
+          Icon(Icons.home, color: Colors.white, size: 35),
+          Icon(Icons.emoji_events, color: Colors.white, size: 35),
+          Icon(Icons.question_mark, color: Colors.white, size: 35),
+          Icon(Icons.settings, color: Colors.white, size: 35),
         ],
         onTap: (index) {
-          setState(() {});
           switch (index) {
             case 0:
-              // İlk öğeye tıklandığında yapılacak işlem
               break;
             case 1:
               Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const LeaderboardPage())); 
+                context,
+                MaterialPageRoute(builder: (context) => const LeaderboardPage()),
+              );
               break;
             case 2:
-              // Üçüncü öğeye tıklandığında yapılacak işlem
               break;
             case 3:
               Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const SettingsScreen()));
+                context,
+                MaterialPageRoute(builder: (context) => const SettingsScreen()),
+              );
               break;
           }
         },
@@ -195,53 +187,44 @@ class _MainScreenState extends State<MainScreen> {
   }
 }
 
-class ColoredCircle extends StatelessWidget {
-  final String text;
+class ProgressCircle extends StatelessWidget {
+  final String label;
+  final double percentage;
   final Color color;
-  final Color textColor;
 
-  const ColoredCircle(this.text, this.color,
-      {super.key, this.textColor = Colors.white});
+  const ProgressCircle(
+      {required this.label, required this.percentage, required this.color, super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 115, // Dairenin genişliği
-      height: 115, // Dairenin yüksekliği
-      padding: const EdgeInsets.all(8), // Daire içindeki metnin kenar boşluğu
-      decoration: BoxDecoration(
-        color: color,
-        shape: BoxShape.circle,
-      ),
-      child: Center(
-        child: Text(
-          text,
-          style: TextStyle(color: textColor), 
+    return Column(
+      children: [
+        Stack(
+          alignment: Alignment.center,
+          children: [
+            SizedBox(
+              width: 80,
+              height: 80,
+              child: CircularProgressIndicator(
+                value: percentage,
+                strokeWidth: 8,
+                color: color,
+                backgroundColor: Colors.grey[200],
+              ),
+            ),
+            Text(
+              "${(percentage * 100).toInt()}%",
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+            ),
+          ],
         ),
-      ),
-    );
-  }
-}
-
-class TranslatedCircle extends StatelessWidget {
-  final String text;
-  final Color color;
-  final double translation;
-  final Color textColor;
-
-  const TranslatedCircle(this.text, this.color, this.translation,
-      {super.key, this.textColor = Colors.black});
-
-  @override
-  Widget build(BuildContext context) {
-    return Transform.translate(
-      offset: Offset(translation, 0), // Yatay kaydırma miktarı
-      child: ColoredCircle(
-        text,
-        color,
-        textColor:
-            textColor, 
-      ),
+        const SizedBox(height: 10),
+        Text(
+          label,
+          textAlign: TextAlign.center,
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+        ),
+      ],
     );
   }
 }

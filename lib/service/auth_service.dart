@@ -170,6 +170,21 @@ class AuthService {
     return null;
   }
 
+  Future<String?> getUserNameById(String uid) async {
+  try {
+    DocumentSnapshot userDoc =
+        await FirebaseFirestore.instance.collection("users").doc(uid).get();
+    if (userDoc.exists && userDoc.data() != null) {
+      Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
+      return userData['name'] as String?;
+    }
+  } catch (e) {
+    print("Error fetching user name: $e");
+  }
+  return null;
+}
+
+
   Future<void> signOut(BuildContext context) async {
     await firebaseAuth.signOut();
     Navigator.pushReplacement(

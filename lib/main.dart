@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_sizer/flutter_sizer.dart';
 import 'package:provider/provider.dart';
 import 'package:study_buddy/locator.dart';
@@ -12,6 +13,9 @@ import 'package:study_buddy/views/welcomepage.dart';
 import 'package:study_buddy/service/provider/theme_provider.dart';
 import 'package:study_buddy/views/student/onBoarding.dart';
 
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
@@ -20,6 +24,15 @@ void main() async {
           appId: "1:296037056963:android:ca4d28f19c1ce086d2bd76",
           messagingSenderId: "296037056963",
           projectId: "study-buddy-58b99"));
+
+  // Bildirimleri başlat
+  const AndroidInitializationSettings initializationSettingsAndroid =
+      AndroidInitializationSettings('@mipmap/ic_launcher');
+  const InitializationSettings initializationSettings =
+      InitializationSettings(android: initializationSettingsAndroid);
+
+  await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+
   setupLocator();
   runApp(MultiProvider(
     providers: [
@@ -106,3 +119,4 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+

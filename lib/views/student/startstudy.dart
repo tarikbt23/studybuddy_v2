@@ -28,52 +28,65 @@ class _StartStudyState extends State<StartStudy> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  ElevatedButton(
+                  ElevatedButton.icon(
                     onPressed: () {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
                               builder: (context) => const KonulariTara()));
                     },
+                    icon: const Icon(Icons.search, color: Colors.white),
+                    label: Text('Konuları Tara',
+                        style: TextStyle(
+                            color: Colors.grey[800],
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600)),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xffc8e3ff),
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: 120, vertical: 20),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 100, vertical: 20),
                     ),
-                    child: Text('Konuları Tara',
-                        style:
-                            TextStyle(color: Colors.grey[800], fontSize: 20)),
                   ),
-                  ElevatedButton(
+                  ElevatedButton.icon(
                     onPressed: () {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) => const KonuCalis()));
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const KonuCalis()));
                     },
+                    icon: const Icon(Icons.book, color: Colors.white),
+                    label: Text(
+                      'Konu Çalış',
+                      style: TextStyle(
+                          color: Colors.grey[800],
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600),
+                    ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xffd7caff),
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: 130, vertical: 20),
-                    ),
-                    child: Text(
-                      'Konu Çalış',
-                      style: TextStyle(color: Colors.grey[800], fontSize: 20),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 110, vertical: 20),
                     ),
                   ),
-                  ElevatedButton(
+                  ElevatedButton.icon(
                     onPressed: () {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
                               builder: (context) => const DenemeGeriBildirim()));
                     },
+                    icon: const Icon(Icons.feedback, color: Colors.white),
+                    label: Text(
+                      'Deneme Geri Bildirimleri',
+                      style: TextStyle(
+                          color: Colors.grey[800],
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600),
+                    ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xffcad7ff),
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: 65, vertical: 20),
-                    ),
-                    child: Text(
-                      'Deneme Geri Bildirimleri',
-                      style: TextStyle(color: Colors.grey[800], fontSize: 20),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 50, vertical: 20),
                     ),
                   ),
                 ],
@@ -84,7 +97,8 @@ class _StartStudyState extends State<StartStudy> {
               flex: 2,
               child: GridView.count(
                 crossAxisCount: 2,
-                childAspectRatio: 2,
+                childAspectRatio: 1.5,
+                padding: const EdgeInsets.all(10),
                 children: <Widget>[
                   MenuButton(
                     icon: Icons.account_circle,
@@ -137,11 +151,17 @@ class _StartStudyState extends State<StartStudy> {
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.deepPurple,
-                    padding: const EdgeInsets.symmetric(horizontal: 70, vertical: 20),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30)),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 70, vertical: 20),
                   ),
                   child: const Text(
                     'Günlük Ders Hedeflerim',
-                    style: TextStyle(color: Colors.white),
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
@@ -166,13 +186,21 @@ class MenuButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Card(
+        elevation: 5,
+        margin: const EdgeInsets.all(8),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         color: Colors.grey[800],
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               Icon(icon, size: 40, color: Colors.white),
-              Text(label, style: const TextStyle(color: Colors.white)),
+              const SizedBox(height: 5),
+              Text(label,
+                  style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold)),
             ],
           ),
         ),

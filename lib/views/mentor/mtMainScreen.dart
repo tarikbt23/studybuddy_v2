@@ -42,53 +42,66 @@ class _MtMainScreenState extends State<MtMainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: isLoading
-            ? const LoadingIndicator()
-            : Container(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const SizedBox(height: 20),
-                    Text(
-                      "Hoş Geldin $userName",
-                      style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.w500,
-                          fontFamily: 'Satoshi'),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 40),
-                    _buildWideButton(
-                      context,
-                      text: "Öğrencilerim",
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const MyStudentsPage()));
-                      },
-                    ),
-                    const SizedBox(height: 20),
-                    _buildWideButton(
-                      context,
-                      text: "Öğrenci Ekle",
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const AddStudentPage()));
-                      },
-                    ),
-                    const SizedBox(height: 60),
-                  ],
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xffe0eafc), Color(0xffcfdef3)],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: SafeArea(
+          child: isLoading
+              ? const LoadingIndicator()
+              : Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const SizedBox(height: 20),
+                      Text(
+                        "Hoş Geldin, $userName!",
+                        style: const TextStyle(
+                          fontSize: 26,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xff2c3e50),
+                          fontFamily: 'Satoshi',
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 40),
+                      _buildWideButton(
+                        context,
+                        icon: Icons.group,
+                        text: "Öğrencilerim",
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const MyStudentsPage()));
+                        },
+                      ),
+                      const SizedBox(height: 20),
+                      _buildWideButton(
+                        context,
+                        icon: Icons.person_add,
+                        text: "Öğrenci Ekle",
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const AddStudentPage()));
+                        },
+                      ),
+                      const Spacer(),
+                    ],
+                  ),
                 ),
-              ),
+        ),
       ),
       bottomNavigationBar: CurvedNavigationBar(
         color: const Color(0xff936ffc),
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.transparent,
         animationDuration: const Duration(milliseconds: 300),
         items: const [
           Icon(
@@ -113,16 +126,14 @@ class _MtMainScreenState extends State<MtMainScreen> {
           )
         ],
         onTap: (index) {
-          setState(() {});
           switch (index) {
             case 0:
-              // İlk öğeye tıklandığında yapılacak işlem
               break;
             case 1:
-              // İkinci öğeye tıklandığında yapılacak işlem
+              // Ödüller sayfası
               break;
             case 2:
-              // Üçüncü öğeye tıklandığında yapılacak işlem
+              // Yardım sayfası
               break;
             case 3:
               Navigator.push(
@@ -138,12 +149,12 @@ class _MtMainScreenState extends State<MtMainScreen> {
 
   // Geniş buton widget'ı
   Widget _buildWideButton(BuildContext context,
-      {required String text, required VoidCallback onTap}) {
+      {required String text, required IconData icon, required VoidCallback onTap}) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 20),
+        margin: const EdgeInsets.symmetric(horizontal: 10),
         decoration: BoxDecoration(
           color: const Color(0xff936ffc),
           borderRadius: BorderRadius.circular(30),
@@ -156,14 +167,20 @@ class _MtMainScreenState extends State<MtMainScreen> {
             ),
           ],
         ),
-        child: Text(
-          text,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-          ),
-          textAlign: TextAlign.center,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: Colors.white, size: 24),
+            const SizedBox(width: 10),
+            Text(
+              text,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
         ),
       ),
     );
