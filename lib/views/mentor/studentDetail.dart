@@ -1,10 +1,18 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:study_buddy/views/chat.dart'; // ChatScreen'i import edin
 
 class StudentDetailPage extends StatelessWidget {
   final String studentId;
+  final String mentorId;
+  final String receiverName;
 
-  const StudentDetailPage({super.key, required this.studentId});
+  const StudentDetailPage({
+    super.key,
+    required this.studentId,
+    required this.mentorId,
+    required this.receiverName,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +26,10 @@ class StudentDetailPage extends StatelessWidget {
           children: [
             // Öğrenci temel bilgileri
             FutureBuilder<DocumentSnapshot>(
-              future: FirebaseFirestore.instance.collection('users').doc(studentId).get(),
+              future: FirebaseFirestore.instance
+                  .collection('users')
+                  .doc(studentId)
+                  .get(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
@@ -27,7 +38,8 @@ class StudentDetailPage extends StatelessWidget {
                   return const Center(child: Text("Öğrenci bulunamadı."));
                 }
 
-                Map<String, dynamic> studentData = snapshot.data!.data() as Map<String, dynamic>;
+                Map<String, dynamic> studentData =
+                    snapshot.data!.data() as Map<String, dynamic>;
                 String studentName = studentData['name'] ?? 'Bilinmiyor';
                 String studentEmail = studentData['email'] ?? 'Bilinmiyor';
                 String alani = studentData['alani'] ?? 'Bilinmiyor';
@@ -37,12 +49,43 @@ class StudentDetailPage extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("Ad: $studentName", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                      Text("Ad: $studentName",
+                          style: const TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 8),
-                      Text("Email: $studentEmail", style: const TextStyle(fontSize: 16)),
+                      Text("Email: $studentEmail",
+                          style: const TextStyle(fontSize: 16)),
                       const SizedBox(height: 8),
-                      Text("Alanı: $alani", style: const TextStyle(fontSize: 16)),
+                      Text("Alanı: $alani",
+                          style: const TextStyle(fontSize: 16)),
                       const SizedBox(height: 16),
+                      // Mesaj Gönder Butonu
+                      ElevatedButton(
+                        onPressed: () async {
+                          final chatRoomId = mentorId.compareTo(studentId) < 0
+                              ? '$mentorId-$studentId'
+                              : '$studentId-$mentorId';
+
+                          await FirebaseFirestore.instance
+                              .collection('chatRooms')
+                              .doc(chatRoomId)
+                              .set({
+                            'createdAt': FieldValue.serverTimestamp(),
+                          }, SetOptions(merge: true));
+
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ChatScreen(
+                                senderId: mentorId,
+                                receiverId: studentId,
+                                receiverName: receiverName,
+                              ),
+                            ),
+                          );
+                        },
+                        child: const Text("Mesaj Gönder"),
+                      ),
                     ],
                   ),
                 );
@@ -51,7 +94,8 @@ class StudentDetailPage extends StatelessWidget {
             const Divider(),
             const Padding(
               padding: EdgeInsets.all(16.0),
-              child: Text("Daily Counts", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              child: Text("Daily Counts",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             ),
             // Daily Counts verileri
             StreamBuilder<QuerySnapshot>(
@@ -65,7 +109,8 @@ class StudentDetailPage extends StatelessWidget {
                   return const Center(child: CircularProgressIndicator());
                 }
                 if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                  return const Center(child: Text("Günlük sayılar bulunamadı."));
+                  return const Center(
+                      child: Text("Günlük sayılar bulunamadı."));
                 }
 
                 return ListView(
@@ -85,7 +130,8 @@ class StudentDetailPage extends StatelessWidget {
             const Divider(),
             const Padding(
               padding: EdgeInsets.all(16.0),
-              child: Text("Study Times", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              child: Text("Study Times",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             ),
             // Study Times verileri
             StreamBuilder<QuerySnapshot>(
@@ -99,7 +145,8 @@ class StudentDetailPage extends StatelessWidget {
                   return const Center(child: CircularProgressIndicator());
                 }
                 if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                  return const Center(child: Text("Çalışma süreleri bulunamadı."));
+                  return const Center(
+                      child: Text("Çalışma süreleri bulunamadı."));
                 }
 
                 return ListView(

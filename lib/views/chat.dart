@@ -2,13 +2,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class ChatScreen extends StatefulWidget {
-  final String senderId; // Gönderenin ID'si
-  final String receiverId; // Alıcının ID'si
+  final String senderId;
+  final String receiverId;
+  final String receiverName;
 
   const ChatScreen({
     super.key,
     required this.senderId,
     required this.receiverId,
+    required this.receiverName,
   });
 
   @override
@@ -19,94 +21,150 @@ class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _messageController = TextEditingController();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  void _sendMessage() async {
-    if (_messageController.text.trim().isEmpty) return;
-
-    await _firestore.collection('messages').add({
-      'senderId': widget.senderId,
-      'receiverId': widget.receiverId,
-      'message': _messageController.text.trim(),
-      'timestamp': FieldValue.serverTimestamp(),
-    });
-
-    _messageController.clear();
+  String getChatRoomId() {
+    return widget.senderId.compareTo(widget.receiverId) < 0
+        ? '${widget.senderId}-${widget.receiverId}'
+        : '${widget.receiverId}-${widget.senderId}';
   }
+
+void _sendMessage() async {
+  if (_messageController.text.trim().isEmpty) return;
+
+  final chatRoomId = getChatRoomId();
+  final message = _messageController.text.trim();
+
+  // Chat room'u oluştur veya mevcutsa devam et
+  await _firestore.collection('chatRooms').doc(chatRoomId).set({
+    'createdAt': FieldValue.serverTimestamp(), // Varsayılan bir alan
+  }, SetOptions(merge: true));
+
+  await _firestore
+      .collection('chatRooms')
+      .doc(chatRoomId)
+      .collection('messages')
+      .add({
+    'senderId': widget.senderId,
+    'receiverId': widget.receiverId,
+    'message': message,
+    'timestamp': FieldValue.serverTimestamp(),
+  });
+
+  _messageController.clear();
+}
+
 
   @override
   Widget build(BuildContext context) {
+    final chatRoomId = getChatRoomId();
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Mesajlaşma'),
+        backgroundColor: Colors.purple,
+        title: Row(
+          children: [
+            const CircleAvatar(
+              backgroundColor: Colors.white,
+              child: Icon(Icons.person, color: Colors.purple),
+            ),
+            const SizedBox(width: 10),
+            Text(
+              widget.receiverName, // Mesajlaşılan kişinin adı
+              style: const TextStyle(fontSize: 18),
+            ),
+          ],
+        ),
       ),
       body: Column(
         children: [
           Expanded(
-            child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-  stream: FirebaseFirestore.instance
-      .collection('messages')
-      .where('senderId', isEqualTo: widget.senderId)
-      .where('receiverId', isEqualTo: widget.receiverId)
-      .orderBy('timestamp', descending: true)
-      .snapshots(),
-  builder: (context, snapshot) {
-    if (snapshot.connectionState == ConnectionState.waiting) {
-      return const Center(child: CircularProgressIndicator());
-    }
-    if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-      return const Center(child: Text('Henüz mesaj yok.'));
-    }
+            child: StreamBuilder<QuerySnapshot>(
+              stream: _firestore
+                  .collection('chatRooms')
+                  .doc(chatRoomId)
+                  .collection('messages')
+                  .orderBy('timestamp') // Mesajlar yukarıdan aşağı
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                  return const Center(child: Text('Henüz mesaj yok.'));
+                }
 
-    final List<QueryDocumentSnapshot<Map<String, dynamic>>> messages =
-        snapshot.data!.docs;
+                return ListView.builder(
+                  itemCount: snapshot.data!.docs.length,
+                  itemBuilder: (context, index) {
+                    final messageData = snapshot.data!.docs[index].data() as Map<String, dynamic>;
+                    final isSentByMe = messageData['senderId'] == widget.senderId;
 
-    return ListView.builder(
-      reverse: true,
-      itemCount: messages.length,
-      itemBuilder: (context, index) {
-        final messageData = messages[index].data();
-
-        final isSentByMe = messageData['senderId'] == widget.senderId;
-        return Align(
-          alignment: isSentByMe ? Alignment.centerRight : Alignment.centerLeft,
-          child: Container(
-            margin: const EdgeInsets.symmetric(
-              vertical: 5,
-              horizontal: 10,
+                    return Align(
+                      alignment: isSentByMe ? Alignment.centerRight : Alignment.centerLeft,
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(
+                          vertical: 5,
+                          horizontal: 10,
+                        ),
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: isSentByMe ? Colors.purple : Colors.grey[300],
+                          borderRadius: BorderRadius.only(
+                            topLeft: const Radius.circular(15),
+                            topRight: const Radius.circular(15),
+                            bottomLeft: isSentByMe ? const Radius.circular(15) : Radius.zero,
+                            bottomRight: isSentByMe ? Radius.zero : const Radius.circular(15),
+                          ),
+                        ),
+                        child: Text(
+                          messageData['message'] ?? '',
+                          style: TextStyle(
+                            color: isSentByMe ? Colors.white : Colors.black,
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
             ),
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: isSentByMe ? Colors.blue : Colors.grey[300],
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Text(
-              messageData['message'] ?? '',
-              style: TextStyle(
-                color: isSentByMe ? Colors.white : Colors.black,
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  },
-)
           ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            decoration: BoxDecoration(
+              color: Colors.grey[200],
+              boxShadow: const [
+                BoxShadow(
+                  color: Colors.grey,
+                  offset: Offset(0, -1),
+                  blurRadius: 4,
+                ),
+              ],
+            ),
             child: Row(
               children: [
                 Expanded(
                   child: TextField(
                     controller: _messageController,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       hintText: 'Mesajınızı yazın...',
-                      border: OutlineInputBorder(),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(25),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 15),
                     ),
                   ),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.send),
-                  onPressed: _sendMessage,
+                const SizedBox(width: 8),
+                GestureDetector(
+                  onTap: _sendMessage,
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.purple,
+                      borderRadius: BorderRadius.circular(50),
+                    ),
+                    child: const Icon(Icons.send, color: Colors.white),
+                  ),
                 ),
               ],
             ),

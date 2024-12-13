@@ -12,11 +12,12 @@ class MyStudentsPage extends StatefulWidget {
 
 class _MyStudentsPageState extends State<MyStudentsPage> {
   late Stream<QuerySnapshot> studentsStream;
+  late String mentorId;
 
   @override
   void initState() {
     super.initState();
-    String? mentorId = FirebaseAuth.instance.currentUser?.uid;
+    mentorId = FirebaseAuth.instance.currentUser?.uid ?? '';
     studentsStream = FirebaseFirestore.instance
         .collection('mentors')
         .doc(mentorId)
@@ -44,7 +45,6 @@ class _MyStudentsPageState extends State<MyStudentsPage> {
             children: snapshot.data!.docs.map((doc) {
               String studentId = doc['studentId'];
 
-              // Öğrenci adını almak için FutureBuilder kullanın
               return FutureBuilder<DocumentSnapshot>(
                 future: FirebaseFirestore.instance.collection('users').doc(studentId).get(),
                 builder: (context, studentSnapshot) {
@@ -59,18 +59,21 @@ class _MyStudentsPageState extends State<MyStudentsPage> {
                     );
                   }
 
-                  // Öğrenci verilerini al
                   Map<String, dynamic> studentData = studentSnapshot.data!.data() as Map<String, dynamic>;
                   String studentName = studentData['name'] ?? "Bilinmiyor";
 
                   return ListTile(
-                    title: Text(studentName), // Öğrenci adını göster
+                    title: Text(studentName),
                     subtitle: const Text("Öğrenci Detaylarına Gitmek İçin Tıklayın"),
                     onTap: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => StudentDetailPage(studentId: studentId),
+                          builder: (context) => StudentDetailPage(
+                            studentId: studentId,
+                            mentorId: mentorId,
+                            receiverName: studentName,
+                          ),
                         ),
                       );
                     },
