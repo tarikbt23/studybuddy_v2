@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 import 'package:study_buddy/service/auth_service.dart';
 import 'package:study_buddy/service/provider/theme_provider.dart';
@@ -6,6 +7,7 @@ import 'package:study_buddy/views/accountData.dart';
 import 'package:study_buddy/views/student/resetTimeSettings.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:study_buddy/widgets/alanSecimi_widget.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -83,20 +85,29 @@ Future<void> _deleteAccount(BuildContext context, AuthService authService) async
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
-          SwitchListTile(
-            title: const Text('Karanlık Mod'),
-            value: themeProvider.isDarkMode,
-            onChanged: (bool value) {
-              themeProvider.toggleTheme(value);
-            },
-            secondary: const Icon(Icons.dark_mode_outlined),
-          ),
           ListTile(
             title: const Text('Hesap Bilgilerim'),
             leading: const Icon(Icons.account_circle_outlined),
             onTap: () {
               Navigator.push(context,
                   MaterialPageRoute(builder: (context) => const AccountData()));
+            },
+          ),
+          ListTile(
+            title: const Text('Alanımı Değiştir (AYT)'),
+            leading: const Icon(Icons.library_books),
+            onTap: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AlanSecimiWidget(
+                    onFieldSelected: (field) async {
+                      await authService.updateUserField(field);
+                      Fluttertoast.showToast(msg: "Alan güncellendi: $field");
+                    },
+                  ),
+                ),
+              );
             },
           ),
           ListTile(
