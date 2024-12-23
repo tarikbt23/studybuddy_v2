@@ -24,15 +24,17 @@ class _KalangunState extends State<Kalangun> {
         ),
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text("2024 YKS 'ye ", style: TextStyle(fontSize: 25)),
-            Text("$difference", style: const TextStyle(fontSize: 45, fontWeight: FontWeight.bold),),
-            const Text("gün kaldı.", style: TextStyle(fontSize: 25))
-          ],
-        )
-      ),
+          child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Text("2025 YKS 'ye ", style: TextStyle(fontSize: 25)),
+          Text(
+            "$difference",
+            style: const TextStyle(fontSize: 45, fontWeight: FontWeight.bold),
+          ),
+          const Text("gün kaldı.", style: TextStyle(fontSize: 25))
+        ],
+      )),
     );
   }
 }

@@ -1,4 +1,5 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.studybuddy.derscalismaasistani">
     <application
         android:label="StudyBuddy"
         android:name="${applicationName}"

@@ -59,17 +59,17 @@ void _sendMessage() async {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.purple,
+        backgroundColor: Color(0xff936ffc),
         title: Row(
           children: [
             const CircleAvatar(
               backgroundColor: Colors.white,
-              child: Icon(Icons.person, color: Colors.purple),
+              child: Icon(Icons.person, color: Color(0xFF936FFC)),
             ),
             const SizedBox(width: 10),
             Text(
               widget.receiverName, // Mesajlaşılan kişinin adı
-              style: const TextStyle(fontSize: 18),
+              style: const TextStyle(fontSize: 18, color: Colors.white),
             ),
           ],
         ),
@@ -107,7 +107,7 @@ void _sendMessage() async {
                         ),
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: isSentByMe ? Colors.purple : Colors.grey[300],
+                          color: isSentByMe ? Color(0xff936ffc) : Colors.grey[300],
                           borderRadius: BorderRadius.only(
                             topLeft: const Radius.circular(15),
                             topRight: const Radius.circular(15),
@@ -160,7 +160,7 @@ void _sendMessage() async {
                   child: Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Colors.purple,
+                      color: Color(0xff936ffc),
                       borderRadius: BorderRadius.circular(50),
                     ),
                     child: const Icon(Icons.send, color: Colors.white),

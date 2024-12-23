@@ -50,21 +50,21 @@ class _DenemeGeriBildirimState extends State<DenemeGeriBildirim>
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Scaffold(
             appBar: AppBar(
-              title: const Text('Deneme Geri Bildirim'),
+              title: const Text('Denemelerim'),
             ),
             body: const LoadingIndicator(),
           );
         } else if (snapshot.hasError) {
           return Scaffold(
             appBar: AppBar(
-              title: const Text('Deneme Geri Bildirim'),
+              title: const Text('Denemelerim'),
             ),
             body: Center(child: Text('Bir hata oluştu: ${snapshot.error}')),
           );
         } else {
           return Scaffold(
             appBar: AppBar(
-              title: const Text('Deneme Geri Bildirim'),
+              title: const Text('Denemelerim'),
               bottom: TabBar(
                 controller: _tabController,
                 tabs: const [

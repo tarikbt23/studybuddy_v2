@@ -29,7 +29,6 @@ class _MainScreenState extends State<MainScreen> {
     super.initState();
     _loadUserDetails();
     _loadMotivationSoz();
-    listRootCollectionsManually();
   }
 
   Future<void> _loadMotivationSoz() async {
@@ -43,8 +42,6 @@ class _MainScreenState extends State<MainScreen> {
   Future<void> _loadUserDetails() async {
     String? id = _auth.currentUser?.uid;
     String? name = await AuthService().getUserName();
-    debugPrint("Kullanıcı ID'si: $id");
-    debugPrint("Kullanıcı Adı: $name");
     setState(() {
       userId = id;
       userName = name;
@@ -60,52 +57,8 @@ class _MainScreenState extends State<MainScreen> {
     }
   }
 
-Future<void> listRootCollectionsManually() async {
-  try {
-    // Firestore üzerinde manuel olarak root koleksiyonları kontrol edin
-    final chatRooms = await FirebaseFirestore.instance.collection('chatRooms').get();
-    debugPrint("chatRooms Koleksiyonunda ${chatRooms.docs.length} kayıt var.");
-
-    final users = await FirebaseFirestore.instance.collection('users').get();
-    debugPrint("users Koleksiyonunda ${users.docs.length} kayıt var.");
-
-    final mentors = await FirebaseFirestore.instance.collection('mentors').get();
-    debugPrint("mentors Koleksiyonunda ${mentors.docs.length} kayıt var.");
-  } catch (e) {
-    debugPrint('Kök koleksiyonları kontrol ederken hata oluştu: $e');
-  }
-}
-
-
-
-// Future<void> _listChatRooms() async {
-//   try {
-//     final chatRoomsCollection = FirebaseFirestore.instance.collection('chatRooms');
-//     final querySnapshot = await chatRoomsCollection.get();
-
-//     if (querySnapshot.docs.isNotEmpty) {
-//       for (var doc in querySnapshot.docs) {
-//         debugPrint("Chat Room ID: ${doc.id}");
-//         // Alt koleksiyonları kontrol edelim
-//         final subCollectionSnapshot = await doc.reference.collection('messages').get();
-//         if (subCollectionSnapshot.docs.isNotEmpty) {
-//           debugPrint("Chat Room '${doc.id}' içinde ${subCollectionSnapshot.docs.length} mesaj bulundu.");
-//         } else {
-//           debugPrint("Chat Room '${doc.id}' içinde mesaj bulunamadı.");
-//         }
-//       }
-//     } else {
-//       debugPrint("ChatRooms koleksiyonu boş.");
-//     }
-//   } catch (e) {
-//     debugPrint("ChatRooms koleksiyonuna erişim sırasında hata oluştu: $e");
-//   }
-// }
-
-
 Future<void> _navigateToChatRoom() async {
   if (userId == null) {
-    debugPrint("Kullanıcı ID'si null. Sohbet odasına gidilemiyor.");
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text("Kullanıcı bilgisi alınamadı.")),
     );
@@ -113,8 +66,6 @@ Future<void> _navigateToChatRoom() async {
   }
 
   try {
-    debugPrint("Chat odaları kontrol ediliyor...");
-
     final QuerySnapshot<Map<String, dynamic>> chatRooms;
     try {
       chatRooms = await FirebaseFirestore.instance.collection('chatRooms').get();

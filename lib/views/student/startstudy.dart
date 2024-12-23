@@ -17,12 +17,30 @@ class StartStudy extends StatefulWidget {
 class _StartStudyState extends State<StartStudy> {
   @override
   Widget build(BuildContext context) {
+    // Ekran genişliğini al
+    final double screenWidth = MediaQuery.of(context).size.width;
+
+    // Sabit buton genişliği
+    final Size buttonSize = Size(screenWidth * 8 / 9, 60);
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
         child: Column(
           children: <Widget>[
-            // Üstteki büyük butonlar
+            Row(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.arrow_back, color: Colors.black),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
+                const Spacer(), // Geri butonu solda hizalanır
+              ],
+            ),
+
+            // Üstteki butonlar
             Expanded(
               flex: 2,
               child: Column(
@@ -31,67 +49,76 @@ class _StartStudyState extends State<StartStudy> {
                   ElevatedButton.icon(
                     onPressed: () {
                       Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const KonulariTara()));
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const KonulariTara(),
+                        ),
+                      );
                     },
                     icon: const Icon(Icons.search, color: Colors.white),
-                    label: Text('Konuları Tara',
-                        style: TextStyle(
-                            color: Colors.grey[800],
-                            fontSize: 20,
-                            fontWeight: FontWeight.w600)),
+                    label: Text(
+                      'Konuları Tara',
+                      style: TextStyle(
+                        color: Colors.grey[800],
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xffc8e3ff),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 100, vertical: 20),
+                      fixedSize: buttonSize,
                     ),
                   ),
                   ElevatedButton.icon(
                     onPressed: () {
                       Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const KonuCalis()));
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const KonuCalis(),
+                        ),
+                      );
                     },
                     icon: const Icon(Icons.book, color: Colors.white),
                     label: Text(
                       'Konu Çalış',
                       style: TextStyle(
-                          color: Colors.grey[800],
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600),
+                        color: Colors.grey[800],
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xffd7caff),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 110, vertical: 20),
+                      fixedSize: buttonSize,
                     ),
                   ),
                   ElevatedButton.icon(
                     onPressed: () {
                       Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const DenemeGeriBildirim()));
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const DenemeGeriBildirim(),
+                        ),
+                      );
                     },
                     icon: const Icon(Icons.feedback, color: Colors.white),
                     label: Text(
-                      'Deneme Geri Bildirimleri',
+                      'Denemelerim',
                       style: TextStyle(
-                          color: Colors.grey[800],
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600),
+                        color: Colors.grey[800],
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xffcad7ff),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 50, vertical: 20),
+                      fixedSize: buttonSize,
                     ),
                   ),
                 ],
               ),
             ),
+
             // Orta kısımdaki menü düğmeleri
             Expanded(
               flex: 2,
@@ -112,9 +139,11 @@ class _StartStudyState extends State<StartStudy> {
                     label: 'Faydalı İpuçları',
                     onTap: () {
                       Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const IpuculariScreen()));
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const IpuculariScreen(),
+                        ),
+                      );
                     },
                   ),
                   MenuButton(
@@ -122,9 +151,11 @@ class _StartStudyState extends State<StartStudy> {
                     label: 'Sınava Kaç Gün Kaldı',
                     onTap: () {
                       Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const Kalangun()));
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const Kalangun(),
+                        ),
+                      );
                     },
                   ),
                   MenuButton(
@@ -132,36 +163,43 @@ class _StartStudyState extends State<StartStudy> {
                     label: 'İstatistikler',
                     onTap: () {
                       Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const StatisticsPage()));
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const StatisticsPage(),
+                        ),
+                      );
                     },
                   ),
                 ],
               ),
             ),
+
+            // Alt kısım: Günlük Ders Hedeflerim
             Expanded(
               child: Center(
                 child: ElevatedButton(
                   onPressed: () {
                     Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const DersHedeflerim()));
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const DersHedeflerim(),
+                      ),
+                    );
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.deepPurple,
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30)),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 70, vertical: 20),
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    fixedSize: buttonSize,
                   ),
                   child: const Text(
                     'Günlük Ders Hedeflerim',
                     style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold),
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
@@ -178,8 +216,12 @@ class MenuButton extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
 
-  const MenuButton(
-      {super.key, required this.icon, required this.label, required this.onTap});
+  const MenuButton({
+    super.key,
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -188,7 +230,9 @@ class MenuButton extends StatelessWidget {
       child: Card(
         elevation: 5,
         margin: const EdgeInsets.all(8),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
         color: Colors.grey[800],
         child: Center(
           child: Column(
@@ -196,11 +240,14 @@ class MenuButton extends StatelessWidget {
             children: <Widget>[
               Icon(icon, size: 40, color: Colors.white),
               const SizedBox(height: 5),
-              Text(label,
-                  style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold)),
+              Text(
+                label,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ],
           ),
         ),

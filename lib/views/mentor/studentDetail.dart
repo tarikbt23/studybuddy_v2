@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:study_buddy/views/chat.dart'; // ChatScreen'i import edin
+import 'package:study_buddy/views/chat.dart'; 
 
 class StudentDetailPage extends StatelessWidget {
   final String studentId;
